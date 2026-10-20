@@ -1,6 +1,7 @@
 """The shipped macro table — minted move sequences as baked data.
 
-Like the learned-prior tables in :mod:`.weights`, this is *content*:
+Like the learned-prior tables in
+:mod:`mlopt_discovery.lawdata.game.weights`, this is *content*:
 the 8-macro set ``scripts/macro_miner.py`` mints off the train
 stream (``meta_player.gen_cases(0, 24)`` — 206 trajectories, mined
 n-grams ranked by ``count x mean terminal reward``), serialized as
