@@ -27,7 +27,7 @@ import torch
 from mlopt_core.ir import Op, TensorType, Var
 from kit_discovery import pipeline as pl
 from kit_discovery.impact import TermCase, _cost_fn
-from mlopt_torch.adapters import TorchSink
+from kit_torch.adapters import TorchSink
 
 
 def _p(op: str, *args, **attrs) -> Op:

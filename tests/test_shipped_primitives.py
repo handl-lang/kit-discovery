@@ -63,7 +63,7 @@ _GLA = "GatedLinearAttention"
 @pytest.fixture(scope="module")
 def gla_term():
     """``GatedLinearAttention``'s exported IR root — every prim binds it."""
-    import mlopt_torch.torch_bridge as tb
+    import kit_torch.torch_bridge as tb
     from kit_discovery import zoo as zoo_mod
 
     w = {w_.name: w_ for w_ in zoo_mod.zoo()}[_GLA]
@@ -200,14 +200,14 @@ class TestRegistration:
             assert "synthesized primitive" in g.law
 
     def test_register_seats_ambient_bindings(self):
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         assert sp.register() == _N_PRIM
         for synop in sp.SYNOP_SHIPPED:
             assert callable(tb._IR_TO_TORCH[synop])
 
     def test_register_reaches_existing_sinks(self):
-        from mlopt_torch.adapters import TorchSink
+        from kit_torch.adapters import TorchSink
 
         sink = TorchSink()  # built BEFORE register() — ambient table
         sp.register()
@@ -221,7 +221,7 @@ class TestRegistration:
     def test_denotation_replays_the_spelled_subgraph(self):
         """synop_5e58f26875 = v0*(v1*v2+v3*v4)+v5*v6 — eval directly."""
         sp.register()
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         args = [torch.randn(2, 3).double() for _ in range(7)]
         got = tb._IR_TO_TORCH["synop_5e58f26875"](*args)
@@ -237,7 +237,7 @@ class TestRegistration:
         select(linear(v2,v3,v4), dim=1, index=a155), dim=a75)``.
         """
         sp.register()
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         v0 = torch.randn(2, 4, 1).double()
         v1 = torch.randn(2, 4).double()
@@ -266,7 +266,7 @@ class TestRegistration:
         premise's RHS IS the fold LHS and the binding replays it.
         """
         sp.register()
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         x = torch.randn(2, 3, 4, dtype=torch.float64)
         got = tb._IR_TO_TORCH["synop_f0576b5150"](
@@ -353,7 +353,7 @@ class TestDeliver:
         return folds
 
     def test_every_fold_fires_and_extracts(self, gla_term):
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         sp.register()
         supported = set(tb._IR_TO_TORCH)
@@ -430,7 +430,7 @@ class TestDeliver:
 
     def test_fold_pays_on_a_bound_module(self, gla_term):
         """synop_bb8c54c201 cuts node count — the shipped fold beats."""
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         sp.register()
         priced = backend_cost(count_cost, set(tb._IR_TO_TORCH))
@@ -451,7 +451,7 @@ class TestDeliver:
         """HighwayGate on shipped DEFAULT: the fold delivers, no opt-in."""
         from kit_discovery import zoo as zoo_mod
         from mlopt_orchestrator.optimize import lower, search
-        from mlopt_torch.adapters import TorchSink, TorchSource
+        from kit_torch.adapters import TorchSink, TorchSource
 
         sp.register()
         w = {w_.name: w_ for w_ in zoo_mod.zoo()}["HighwayGate"]
@@ -482,7 +482,7 @@ class TestDeliver:
         """
         from kit_discovery import zoo as zoo_mod
         from mlopt_orchestrator.optimize import lower, search
-        from mlopt_torch.adapters import TorchSink, TorchSource
+        from kit_torch.adapters import TorchSink, TorchSource
 
         sp.register()
         w = {w_.name: w_ for w_ in zoo_mod.zoo()}[mod]
@@ -521,7 +521,7 @@ class TestDeliver:
         """
         from kit_discovery import zoo as zoo_mod
         from mlopt_orchestrator.optimize import lower, search
-        from mlopt_torch.adapters import TorchSink, TorchSource
+        from kit_torch.adapters import TorchSink, TorchSource
 
         sp.register()
         w = {w_.name: w_ for w_ in zoo_mod.zoo()}[
@@ -615,7 +615,7 @@ class TestGenDelivery:
 
     def test_gen_binding_matches_the_spec_walk(self):
         """The fused-body callable evaluates the same denotation."""
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
         from kit_discovery import genkernel as gk
 
         sp.register()

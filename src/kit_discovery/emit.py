@@ -820,7 +820,7 @@ from mlopt_core.meta import (
     pattern_metavars,
 )
 from mlopt_orchestrator.optimize import _lower_extracted
-from mlopt_torch.adapters import TorchSink
+from kit_torch.adapters import TorchSink
 
 _SINK = TorchSink()
 

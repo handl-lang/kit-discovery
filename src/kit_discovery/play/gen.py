@@ -41,7 +41,7 @@ def _gen_cases(
     """
     import torch
     import torch.nn as nn
-    from mlopt_torch.adapters import TorchSource
+    from kit_torch.adapters import TorchSource
 
     from kit_discovery import genkernel as gk
     from kit_discovery import lawdata
@@ -870,7 +870,7 @@ def _zoo_export(wl: Any, *, dtype: str = "fp64") -> Any:
     expensive intake sweep runs.
     """
     import torch
-    from mlopt_torch.adapters import TorchSource
+    from kit_torch.adapters import TorchSource
 
     td = {"fp32": torch.float32, "fp64": torch.float64}[dtype]
     model, feed = wl.build()

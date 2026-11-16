@@ -28,7 +28,7 @@ from kit_discovery import zoo as zoo_mod
 from kit_discovery.impact import TermCase, _cost_fn
 from kit_discovery.shape_proposal import _sink
 from mlopt_orchestrator.optimize import Optimizer, default_rules
-from mlopt_torch.backend import TorchBackend
+from kit_torch.backend import TorchBackend
 
 _ZOO = {w.name: w for w in zoo_mod.zoo()}
 

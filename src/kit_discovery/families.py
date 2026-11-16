@@ -12,7 +12,7 @@ policy's pick per family.
   spellings unify to one e-class, and the shared product collapses.
 * ``linear`` — a stacked ``linear → linear → relu`` block exported from
   a small torch model through
-  :class:`mlopt_torch.adapters.TorchSource`; ``assoc_linear_bias``
+  :class:`kit_torch.adapters.TorchSource`; ``assoc_linear_bias``
   fuses the two linears into one GEMM.
 
 Torch-free except :func:`linear_programs`, which imports the adapter
@@ -118,7 +118,7 @@ def linear_programs(
 ) -> list[Op]:
     """``n`` stacked ``linear → linear → relu`` blocks exported to IR."""
     import torch
-    from mlopt_torch.adapters import TorchSource
+    from kit_torch.adapters import TorchSource
     from torch import nn
 
     class _Block(nn.Module):

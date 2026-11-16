@@ -21,7 +21,7 @@ import json
 import pytest
 import torch
 
-import mlopt_torch.torch_bridge as tb
+import kit_torch.torch_bridge as tb
 from kit_discovery import family_synth as fs
 from kit_discovery import handler_synth as hs
 

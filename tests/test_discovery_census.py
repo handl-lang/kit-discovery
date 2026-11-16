@@ -174,7 +174,7 @@ def test_impact_census_modules_import_without_torch():
     """``impact``/``census`` import torch-free.
 
     Runs in a subprocess: ``sys.modules[name] = None`` makes the import
-    system raise ``ImportError`` for ``torch`` and ``mlopt_torch``, so a
+    system raise ``ImportError`` for ``torch`` and ``kit_torch``, so a
     clean run proves neither module binds them at import time (torch
     binds lazily inside the corpus builders / probe paths; the census
     functions take caller-supplied ``CorpusTerm`` lists).
@@ -185,7 +185,7 @@ def test_impact_census_modules_import_without_torch():
     code = (
         "import sys\n"
         "sys.modules['torch'] = None\n"
-        "sys.modules['mlopt_torch'] = None\n"
+        "sys.modules['kit_torch'] = None\n"
         "import kit_discovery.impact\n"
         "import kit_discovery.census\n"
     )

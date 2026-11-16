@@ -1,6 +1,6 @@
 """Workload intake — feed the census programs nobody wrote by hand.
 
-The corpus is hand-curated: forty ``mlopt_torch.models`` classes
+The corpus is hand-curated: forty ``kit_torch.models`` classes
 registered in ``kit_discovery.impact._model_cases``.  ``law-workload-gen.md``
 proved resampling cannot mint new op-tuples and
 ``corpus-expansion-r2.md`` proved real architectures can — but every
@@ -69,7 +69,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import torch
-from mlopt_torch.adapters import TorchSink
+from kit_torch.adapters import TorchSink
 
 from kit_discovery.impact import (
     TermCase,

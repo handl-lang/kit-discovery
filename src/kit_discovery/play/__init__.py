@@ -33,7 +33,7 @@ Shipped domains:
   one rule per step under a horizon/patience bound, adapted to the
   :class:`~kit_discovery.engine.Board` contract;
 * ``torch`` — real ``nn.Module``s lifted through
-  ``mlopt_torch.adapters.TorchSource`` and played under the real
+  ``kit_torch.adapters.TorchSource`` and played under the real
   sink's ``supported_ops`` bound; the ``--deliver`` flag lowers
   the winning extraction to a verified runnable module;
 * ``open`` — a page of enumerated law candidates, one oracle

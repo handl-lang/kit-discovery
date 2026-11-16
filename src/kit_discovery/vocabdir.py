@@ -725,7 +725,7 @@ def collect_ops() -> list[dict]:
     # exports — ``OpTable.full()`` seeds those into the ambient dict.
     # Reading either alone made the census order-dependent.
     try:
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
         from mlopt_core.ops import OpTable
 
         OpTable.full()

@@ -498,10 +498,10 @@ def joint_step(forward: Any, grads: dict, bindings: Any) -> Any:
     forward's activations spelled inside the VJPs) evaluate once:
     the runtime expression of what ``joint_probe`` measures
     statically.  ``bindings`` is a torch lowering dict —
-    ``mlopt_torch.torch_bridge._IR_TO_TORCH`` or a gen-table —
+    ``kit_torch.torch_bridge._IR_TO_TORCH`` or a gen-table —
     injected at call time so this module stays torch-free.
     """
-    from mlopt_torch.torch_bridge import eval_term
+    from kit_torch.torch_bridge import eval_term
 
     def step(var_env: dict, param_env: dict) -> tuple:
         """Evaluate forward + all grads with a shared memo."""

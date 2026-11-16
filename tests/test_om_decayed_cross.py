@@ -12,7 +12,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-import mlopt_torch.torch_bridge as tb  # noqa: E402
+import kit_torch.torch_bridge as tb  # noqa: E402
 from kit_carriers.om import (  # noqa: E402
     DECAY_BLOCK_CROSS,
     DECAY_BLOCK_CROSS_FLAT,
@@ -55,7 +55,7 @@ from mlopt_core.meta import (  # noqa: E402
     match_pattern,
 )
 from mlopt_core.typing import shape_of  # noqa: E402
-from mlopt_torch.torch_bridge import eval_term  # noqa: E402
+from kit_torch.torch_bridge import eval_term  # noqa: E402
 
 G = torch.tensor(0.9, dtype=torch.float64)
 
@@ -1539,8 +1539,8 @@ class TestRealExportFold:
     """
 
     def test_real_export_reaches_applyd(self):
-        pytest.importorskip("mlopt_torch")
-        from mlopt_torch.adapters import TorchSource
+        pytest.importorskip("kit_torch")
+        from kit_torch.adapters import TorchSource
         from kit_discovery.zoo import _ChunkedRetention
 
         m = _ChunkedRetention(16)
@@ -1583,8 +1583,8 @@ class TestRealExportFold:
         inter-chunk accumulator sitting INSIDE the contraction, the
         O(T·C) fold the plan is named for.
         """
-        pytest.importorskip("mlopt_torch")
-        from mlopt_torch.adapters import TorchSource
+        pytest.importorskip("kit_torch")
+        from kit_torch.adapters import TorchSource
         from kit_discovery.zoo import _ChunkedRetention
         from mlopt_core.laws.tensor import (
             ASSOC_MATMUL_REV,
@@ -1655,7 +1655,7 @@ class TestRealExportFold:
         discount was invented, so extraction selects it.  The fused
         member must still price higher (the honest direction).
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import dag_cost, flops_cost
         from mlopt_core.laws.tensor import (
             ASSOC_MATMUL_REV,
@@ -1667,7 +1667,7 @@ class TestRealExportFold:
             SPLIT_SCALAR_RULES,
         )
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         m = _ChunkedRetention(16).double()
         x = torch.randn(2, 512, 16, dtype=torch.float64)
@@ -1951,7 +1951,7 @@ class TestOmDecayedKway:
         drops the extracted cost to ~1.21M — and extraction still
         selects the chunked carrier, not the fused quadratic.
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import dag_cost, flops_cost
         from mlopt_core.laws.tensor import (
             ASSOC_MATMUL_REV,
@@ -1963,7 +1963,7 @@ class TestOmDecayedKway:
             SPLIT_SCALAR_RULES,
         )
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         base = (
             list(OM_LAWS)
@@ -2030,7 +2030,7 @@ class TestOmDecayedKway:
         SHARED state recurrence, which the law set never spells — a
         search gap, not a cost gap.
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import flops_cost
         from mlopt_core.egraph import EGraph
         from mlopt_core.laws.tensor import (
@@ -2043,7 +2043,7 @@ class TestOmDecayedKway:
             SPLIT_SCALAR_RULES,
         )
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         T, K = 128, 8
         rules = (
@@ -2373,7 +2373,7 @@ class TestSharedStateReassoc:
         the q-factored ``matmul(Q, ·)`` member the ``_mat`` variant
         wants is not exposed; see the plan's remaining gap.)
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import dag_cost, flops_cost
         from mlopt_core.laws.tensor import (
             ASSOC_MATMUL_REV,
@@ -2385,7 +2385,7 @@ class TestSharedStateReassoc:
             SPLIT_SCALAR_RULES,
         )
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         T, K = 64, 4
         base = (
@@ -2538,10 +2538,10 @@ class TestDivBridgeStaging:
         stage B completes and ``om_shared_mat_reassoc`` fires — 0× in
         the all-at-once arm — while extraction picks a cheaper member.
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import dag_cost, flops_cost
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         T, K = 64, 4
         reach, reassoc = om_shared_state_stages(K)
@@ -2667,10 +2667,10 @@ class TestSharedStateExtraction:
         state object of an earlier block is nested inside a later
         block's — the ``S_i = g^C·S_{i-1} + B_i`` chain, shared.
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import dag_cost, flops_cost
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         T, K = 64, 4
         reach, reassoc = om_shared_state_stages(K)
@@ -2723,11 +2723,11 @@ class TestSharedStateExtraction:
 
     def test_extracted_carrier_verifies_fp64(self):
         """The extracted shared-state program lowers and verifies."""
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         from mlopt_core.cost import flops_cost
         from mlopt_core.ir import IR
         from kit_discovery.zoo import _ChunkedRetention
-        from mlopt_torch.adapters import TorchSink, TorchSource
+        from kit_torch.adapters import TorchSink, TorchSource
 
         T, K = 64, 4
         reach, reassoc = om_shared_state_stages(K)

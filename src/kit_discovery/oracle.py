@@ -1791,7 +1791,7 @@ def _as_tensor(v: Any) -> Any:
 
 def _view_call(node: Op, arg: Any) -> Any:
     """Apply *node*'s op binding to *arg* with the node's attrs."""
-    from mlopt_torch.torch_bridge import _IR_TO_TORCH
+    from kit_torch.torch_bridge import _IR_TO_TORCH
 
     fn = _IR_TO_TORCH.get(node.op)
     if fn is None:

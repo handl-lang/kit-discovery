@@ -32,7 +32,7 @@ what remains domain-side, exactly the piece a torch-free core cannot
 ship: the **denotation**.  A ``synop_*`` op's meaning is the torch
 binding that evaluates the spelled subgraph (ADR 0007: the executor
 table is the meaning) — :func:`register` seats one binding per op on
-the ambient ``mlopt_torch.torch_bridge._IR_TO_TORCH`` table, so every
+the ambient ``kit_torch.torch_bridge._IR_TO_TORCH`` table, so every
 ``OpTable.full()``-backed ``TorchSink`` (existing instances included
 — the table IS the ambient dict) can lower it.  The mint's fp64 site
 checks all measured ``equal`` — the fold is sound by construction.
@@ -74,7 +74,7 @@ Deployment contract
 
     from kit_discovery import shipped_primitives as sp
     from mlopt_orchestrator.optimize import search, lower
-    from mlopt_torch.adapters import TorchSink, TorchSource
+    from kit_torch.adapters import TorchSink, TorchSource
 
     sp.register()                       # torch denotations
     res = search(m, x, source=TorchSource())   # shipped DEFAULT
@@ -250,7 +250,7 @@ def _binding(spec_: Any, leaf_mvars: tuple, attr_mvars: tuple) -> Any:
     """
 
     def fn(*args: Any, **attrs: Any) -> Any:
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery.genkernel import _eval_spec
 
@@ -322,7 +322,7 @@ def register() -> int:
     (``supported_ops`` is the table's live key set).  Idempotent —
     re-registration rewrites byte-identical bindings.
     """
-    import mlopt_torch.torch_bridge as tb
+    import kit_torch.torch_bridge as tb
 
     declare()
     for name in SYNOP_SHIPPED:

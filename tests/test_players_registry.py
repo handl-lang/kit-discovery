@@ -225,7 +225,7 @@ def test_neural_requires_and_uses_train_ctx():
 
 def test_distilled_contraction_arms():
     """``distilled`` + ``distilled-argmax`` score real bond networks."""
-    from mlopt_torch.contraction_policy import (
+    from kit_torch.contraction_policy import (
         cost_of_order,
         greedy,
         random_bond_network,

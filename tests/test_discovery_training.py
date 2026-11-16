@@ -11,7 +11,7 @@ import torch
 from mlopt_core.ir import Const, Op, TensorType, Var
 from kit_discovery import meta_arena as ma
 from kit_discovery import training
-from mlopt_torch.meta_eval import _eval_allclose, _eval_term
+from kit_torch.meta_eval import _eval_allclose, _eval_term
 
 
 def _v(name: str, *shape: int) -> Var:
@@ -323,7 +323,7 @@ class TestRealModels:
 
     def test_linear_relu_backward_matches_autograd(self):
         import torch.nn as nn
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         torch.manual_seed(0)
 
@@ -454,7 +454,7 @@ class TestJointProbe:
         # the delivered joint artifact: fwd+grads under one memo —
         # grads verified vs autograd
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         class T(torch.nn.Module):
             def __init__(self):
@@ -467,7 +467,7 @@ class TestJointProbe:
         torch.manual_seed(0)
         m = T().eval()
         x = torch.randn(4, 8, requires_grad=True)
-        from mlopt_torch.adapters import TorchSource
+        from kit_torch.adapters import TorchSource
 
         ir, leaves = TorchSource().to_ir(m, x.detach())
         g0 = _p("broadcast_to", Const(1.0), shape=(4, 8))

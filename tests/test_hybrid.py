@@ -1,7 +1,7 @@
 # ruff: noqa: RUF002, RUF003
 """Hybrid SSM+attention blocks — TWO monoid carriers in one e-graph.
 
-``mlopt_torch.models.hybrid.HybridBlock`` stacks a diagonal-affine scan
+``kit_torch.models.hybrid.HybridBlock`` stacks a diagonal-affine scan
 (``aff_diag`` / ``affd_compose`` / ``applyd`` — ``SCAN_DIAG_LAWS``)
 under chunked self-attention (``om_elem`` / ``om_compose`` /
 ``om_apply`` — ``OM_LAWS``).  ``TwoLayerHybrid`` goes SSM → attention →
@@ -62,9 +62,9 @@ from mlopt_core import laws as R
 from mlopt_core.cost import dag_cost, flops_cost
 from mlopt_core.egraph import EGraph
 from mlopt_core.ir import IR, Op, Var, op_repr
-from mlopt_torch.models.hybrid import HybridBlock, TwoLayerHybrid
+from kit_torch.models.hybrid import HybridBlock, TwoLayerHybrid
 from kit_carriers.om import OM_LAWS
-from mlopt_torch.torch_bridge import export_to_ir, ir_to_torch_module
+from kit_torch.torch_bridge import export_to_ir, ir_to_torch_module
 
 # ---------------------------------------------------------------------------
 #  helpers

@@ -233,7 +233,7 @@ def test_verify_model_handl_shipped_on_exact_eval() -> None:
     draw/decode/compare/verdict logic end to end; the real ``hnl-run``
     arithmetic parity is ``test_vocab_model_parity.py``'s job (e2e).
     """
-    import mlopt_torch.torch_bridge as tb
+    import kit_torch.torch_bridge as tb
     from kit_discovery import handler_synth
 
     ref_spec = ("add", "x", "y")
@@ -378,7 +378,7 @@ def test_hnl_program_binds_attr_literals() -> None:
 
 def test_verify_model_attr_metavar_binds_both_sides() -> None:
     """Attr metavars bind the torch ref AND the ``.hnl`` program."""
-    import mlopt_torch.torch_bridge as tb
+    import kit_torch.torch_bridge as tb
     from kit_discovery import handler_synth
     from kit_discovery.prim_mint import spec_bind
 

@@ -35,8 +35,8 @@ from mlopt_core import meta
 from mlopt_core.cost import launch_aware_cost
 from mlopt_core.egraph import EGraph
 from mlopt_core.ir import IR, Const, Op, TensorType, Var
-from mlopt_torch.adapters import TorchSink
-from mlopt_torch.torch_bridge import _IR_TO_TORCH, ir_to_torch_module
+from kit_torch.adapters import TorchSink
+from kit_torch.torch_bridge import _IR_TO_TORCH, ir_to_torch_module
 
 torch.manual_seed(0)
 
@@ -260,7 +260,7 @@ def test_chunked_retention_lifts_and_delivers():
     identical to the unrewritten lowering.
     """
     from kit_discovery.zoo import _ChunkedRetention
-    from mlopt_torch.torch_bridge import export_to_ir
+    from kit_torch.torch_bridge import export_to_ir
 
     torch.manual_seed(0)
     model = _ChunkedRetention(16).double()

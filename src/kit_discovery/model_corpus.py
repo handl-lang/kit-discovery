@@ -1,7 +1,7 @@
 """Per-model corpus — a target model mints its own coverage probes.
 
 The discovery corpus is fixed: the bench law cases, the
-``mlopt_torch.models`` registry and the intake/zoo side-files.  A
+``kit_torch.models`` registry and the intake/zoo side-files.  A
 *new* model — one nobody registered — used to be measured only
 through zoo analogues: ``play._zoo_case``/``gen_probe`` run the
 claim → measured-cost referee → deliver → verify → time pipeline,
@@ -76,7 +76,7 @@ from typing import Any
 
 import torch
 from mlopt_core.ir import IR
-from mlopt_torch.adapters import TorchSink, TorchSource
+from kit_torch.adapters import TorchSink, TorchSource
 
 from kit_discovery.impact import TermCase, _ir_of
 

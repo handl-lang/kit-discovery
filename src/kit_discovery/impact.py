@@ -14,7 +14,7 @@ and bounded to a few minutes:
 
 1. **Firing** — run each law alone over every bench law case
    (``bench.suites.correctness.law_bench.LAW_CASES``) and over real
-   model graphs (``mlopt_torch.models``), plus a synthetic control
+   model graphs (``kit_torch.models``), plus a synthetic control
    (each law's own LHS instance).  Report firing counts, including
    zeros.
 2. **Cost delta** — for every firing, the pipeline cost model's
@@ -32,7 +32,7 @@ zeros is a decisive answer, not a bug.
 
 Torch seam (plan 0034): this module imports **without** torch —
 the bench/model corpus builders, the synthetic-feed generator and
-the lowering/verify probe bind ``torch``/``mlopt_torch`` lazily at
+the lowering/verify probe bind ``torch``/``kit_torch`` lazily at
 *call* time, and the entry points take injected backends:
 :func:`model_cases` accepts a ``source`` (anything with
 ``to_ir(model, x)`` — the default is a lazily-bound
@@ -80,7 +80,7 @@ from kit_discovery import REPO_ROOT, lawdata
 from kit_discovery.proposal import _leaves, _spec_term
 
 if TYPE_CHECKING:
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
 # ``bench`` is a repo-root package in the *consumer* checkout
 # (graphopt), not an installed distribution — the lazy
@@ -243,9 +243,9 @@ def _bench_cases() -> tuple[list[TermCase], list[str]]:
 def _model_cases() -> list[tuple[str, Any, Any]]:
     """Return ``(name, model, example_input)`` for the real graphs."""
     import torch  # lazy: the corpus is torch modules + fp64 feeds
-    from mlopt_torch import models as M
-    from mlopt_torch.models import hybrid as H
-    from mlopt_torch.models import ssm as S
+    from kit_torch import models as M
+    from kit_torch.models import hybrid as H
+    from kit_torch.models import ssm as S
 
     class _LSTMSeq(torch.nn.Module):
         """``nn.LSTM`` reading the triple's output element.
@@ -442,14 +442,14 @@ def _model_cases() -> list[tuple[str, Any, Any]]:
 
 def _torch_source() -> Any:
     """Return the torch model exporter (bound lazily)."""
-    from mlopt_torch.adapters import TorchSource
+    from kit_torch.adapters import TorchSource
 
     return TorchSource()
 
 
 def _torch_sink() -> Any:
     """Return the torch lowering/verify sink (bound lazily)."""
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
     return TorchSink()
 
@@ -460,7 +460,7 @@ def model_cases(source: Any = None) -> tuple[list[TermCase], list[str]]:
     A model that fails to export is reported honestly in the second
     list rather than crashing the run.  *source* is the injected
     exporter — anything with ``to_ir(model, x)``; the default is a
-    lazily-bound :class:`mlopt_torch.adapters.TorchSource`, so a
+    lazily-bound :class:`kit_torch.adapters.TorchSource`, so a
     torch-free domain can drive the same corpus machinery with its
     own source.
     """

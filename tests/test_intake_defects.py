@@ -27,8 +27,8 @@ import torch
 from mlopt_core.egraph import Rewrite
 from mlopt_core.ir import IR, Const, Op
 from kit_discovery import intake as li
-from mlopt_torch.adapters import TorchSink
-from mlopt_torch.torch_bridge import export_to_ir, ir_to_torch_module
+from kit_torch.adapters import TorchSink
+from kit_torch.torch_bridge import export_to_ir, ir_to_torch_module
 
 def _ops_of(term, acc=None):
     if acc is None:
@@ -336,7 +336,7 @@ def test_copy_family_slice_write_unminted_base_rejects():
     silent decline would drop the mutation."""
     from types import SimpleNamespace as NS
 
-    from mlopt_torch.torch_bridge import _handle_copy_
+    from kit_torch.torch_bridge import _handle_copy_
 
     dst_fx = NS(
         name="d",
@@ -355,7 +355,7 @@ def test_copy_family_unminted_src_rejects():
     the write can't be threaded, and env is left untouched."""
     from types import SimpleNamespace as NS
 
-    from mlopt_torch.torch_bridge import _handle_copy_
+    from kit_torch.torch_bridge import _handle_copy_
 
     dst_fx = NS(name="d", target="placeholder")
     env = {"d": Op.make("zeros", shape=(4,), dtype="float64")}

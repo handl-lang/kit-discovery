@@ -564,7 +564,7 @@ def verify_model(
     from kit_discovery import handler_synth
 
     if bindings is None:
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         bindings = tb._IR_TO_TORCH
     verdict: dict[str, Any] = {

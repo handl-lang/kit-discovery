@@ -279,7 +279,7 @@ class TestPoolHooks:
     def test_bootstrap_registers_and_seats(self):
         """The seating loop runs the shipped folds + the seater hook."""
         calls = []
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         _c, _m, stats = pm.prim_pool(
             self._roots(),

@@ -89,7 +89,7 @@ def scan_probe(
     """
     import torch
     from kit_carriers.scan_lower import to_batched_scan_module
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
     from kit_discovery import genkernel as gk
 
@@ -208,7 +208,7 @@ def decay_probe(
     False`` honestly.
     """
     import torch
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
     from kit_discovery import genkernel as gk
 

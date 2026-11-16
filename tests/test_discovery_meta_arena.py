@@ -440,9 +440,9 @@ class TestFeasibilityPricing:
         )
 
     def test_torch_supported_falls_back(self, monkeypatch):
-        # without mlopt-torch the demo bound is None — the board
+        # without kit-torch the demo bound is None — the board
         # falls back to the ambient-vocabulary bound
-        monkeypatch.setitem(sys.modules, "mlopt_torch.adapters", None)
+        monkeypatch.setitem(sys.modules, "kit_torch.adapters", None)
         assert ma._torch_supported() is None
 
     def test_feasible_cost_forwards_model_markers(self):

@@ -42,7 +42,7 @@ from mlopt_core.laws.tensor import (
 )
 from kit_discovery.play import _time_module
 from kit_discovery.zoo import _ChunkedRetention
-from mlopt_torch.adapters import TorchSink, TorchSource
+from kit_torch.adapters import TorchSink, TorchSource
 
 #: The naturality bridges the fold's last hops need (plan 0023) —
 #: load-bearing for the carrier preference.
@@ -124,7 +124,7 @@ class TestKwayCarrierDelivery:
         — see :mod:`tools.om_decayed_kway_deliver_probe` — but the
         delivery path itself is sound.)
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         model, x, ir, leaves, best = _extract(512, 2)
         assert best.op == "concat"
         sink = TorchSink()
@@ -146,7 +146,7 @@ class TestKwayCarrierDelivery:
         host (at T=1024 the margin is ~2.2x, which a contended box
         can invert).
         """
-        pytest.importorskip("mlopt_torch")
+        pytest.importorskip("kit_torch")
         t, k = 2048, 4
         model, x, ir, leaves, best = _extract(t, k)
         assert best.op == "concat"

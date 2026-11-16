@@ -16,7 +16,7 @@ For each *schema* — a generic metavariable equality such as
 ``add(mul(A,B), mul(A,C)) -> mul(A, add(B,C))`` — it measures:
 
 * **real matches** — subterms of the corpus (bench law cases + the 22
-  exported ``mlopt_torch.models`` blocks) that the schema's LHS
+  exported ``kit_torch.models`` blocks) that the schema's LHS
   matches *with its metavariable equalities enforced*.  A schema whose
   LHS never matches with the equalities is inapplicable, however true
   it is.
@@ -323,7 +323,7 @@ def _sink() -> Any:
     """Return a shared ``TorchSink`` (built once)."""
     global _SINK
     if _SINK is None:
-        from mlopt_torch.adapters import TorchSink
+        from kit_torch.adapters import TorchSink
 
         _SINK = TorchSink()
     return _SINK

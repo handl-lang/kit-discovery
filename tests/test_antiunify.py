@@ -790,7 +790,7 @@ class TestEndToEnd:
     def test_extract_unfold_lowers_and_verifies(self):
         torch = pytest.importorskip("torch")
         from mlopt_core.ir import IR
-        from mlopt_torch.adapters import TorchSink, TorchSource
+        from kit_torch.adapters import TorchSink, TorchSource
 
         class Block(torch.nn.Module):
             """add(chunk(x, i), w) three times — the mined motif."""

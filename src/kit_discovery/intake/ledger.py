@@ -29,8 +29,8 @@ from mlopt_core.ir import (
     term_from_data,
     term_to_data,
 )
-from mlopt_torch.adapters import TorchSink
-from mlopt_torch.torch_bridge import export_to_ir
+from kit_torch.adapters import TorchSink
+from kit_torch.torch_bridge import export_to_ir
 
 from kit_discovery import intake_dir
 from kit_discovery.impact import (

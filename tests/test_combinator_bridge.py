@@ -180,7 +180,7 @@ def test_retnet_fold_verifies_against_model():
     import kit_carriers  # noqa: F401 — carrier op bindings
     from mlopt_core.ir import IR
     from kit_discovery.zoo import _ChunkedRetention
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
     torch.manual_seed(0)
     t, k, d, b = 16, 2, 8, 1

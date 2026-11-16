@@ -30,9 +30,9 @@ from kit_discovery import intake as li
 from kit_discovery import pipeline as pl
 from kit_discovery import workload_gen as lwg
 from kit_discovery.impact import TermCase
-from mlopt_torch.adapters import TorchSink
-from mlopt_torch.report import VerifyReport
-from mlopt_torch.torch_bridge import export_to_ir
+from kit_torch.adapters import TorchSink
+from kit_torch.report import VerifyReport
+from kit_torch.torch_bridge import export_to_ir
 
 
 def _v(name: str, *shape: int) -> Var:

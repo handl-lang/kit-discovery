@@ -8,7 +8,7 @@ which are views — from two hand-written tuples (``_POINTWISE``,
 happened to be listed; an op absent from the tables is invisible to
 the generator.  This tool removes that last human ingredient: it mines
 every op that actually occurs in the corpus (the 22 exported
-``mlopt_torch.models`` blocks plus the bench law cases) and classifies
+``kit_torch.models`` blocks plus the bench law cases) and classifies
 it from a *test*, not a lookup.
 
 Properties (each decided by evaluating the op, not by membership):

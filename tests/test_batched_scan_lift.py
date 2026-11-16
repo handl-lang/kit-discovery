@@ -41,9 +41,9 @@ from mlopt_core.ir import IR, Op, Param, TensorType, Var
 from kit_discovery import genkernel as gk
 from kit_discovery import play
 from mlopt_orchestrator import Optimizer
-from mlopt_torch import torch_bridge as tb
-from mlopt_torch.backend import TorchBackend
-from mlopt_torch.torch_bridge import ir_to_torch_module
+from kit_torch import torch_bridge as tb
+from kit_torch.backend import TorchBackend
+from kit_torch.torch_bridge import ir_to_torch_module
 
 # Ambient registries the overnight/prim-mint tests mutate process-wide:
 # minting registers ``synop_*``/``ksynop_*`` ops (``ir._OP_REGISTRY``),
@@ -56,7 +56,7 @@ from mlopt_torch.torch_bridge import ir_to_torch_module
 # ``IRModule`` rather than ``BatchedScanModule``.  Snapshot at import
 # (collection precedes every test body) and restore per test so these
 # end-to-end assertions see fresh-process registry state — via the
-# shipped ``mlopt_torch.torch_bridge`` ambient-registry API, the same
+# shipped ``kit_torch.torch_bridge`` ambient-registry API, the same
 # helper any test file can opt into.
 _AMBIENT_SNAPSHOT = tb.ambient_registry_snapshot()
 

@@ -285,7 +285,7 @@ class TestOptimizeWiring:
         if not _probe_supported():
             pytest.skip("eqsat pin predates the corpus_probe hook")
         from mlopt_orchestrator import Optimizer
-        from mlopt_torch.backend import TorchBackend
+        from kit_torch.backend import TorchBackend
 
         torch.manual_seed(0)
         model = _TinyResidual().eval()
@@ -309,7 +309,7 @@ class TestOptimizeWiring:
     def test_default_path_records_no_probe(self):
         """``corpus_probe`` unset → the historical stats, unchanged."""
         from mlopt_orchestrator import Optimizer
-        from mlopt_torch.backend import TorchBackend
+        from kit_torch.backend import TorchBackend
 
         torch.manual_seed(0)
         model = _TinyResidual().eval()
@@ -325,7 +325,7 @@ class TestOptimizeWiring:
         if not _probe_supported():
             pytest.skip("eqsat pin predates the corpus_probe hook")
         from mlopt_orchestrator import Optimizer
-        from mlopt_torch.backend import TorchBackend
+        from kit_torch.backend import TorchBackend
 
         torch.manual_seed(0)
         model = _TinyResidual().eval()

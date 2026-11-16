@@ -8,7 +8,7 @@ not.  The lesson: law proposal optimised algebraic novelty, not
 applicability.  Before proposing anything shape-aware, measure the
 distribution it must hit.
 
-This tool mines the real corpus — every ``mlopt_torch.models`` block
+This tool mines the real corpus — every ``kit_torch.models`` block
 exported to IR, plus every ``bench`` law case — and reports the
 **shape frequencies** of the subterms actually present:
 

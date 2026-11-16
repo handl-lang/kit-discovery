@@ -404,7 +404,7 @@ class TestGenDomain:
 
     def test_eval_spec_const_leaf(self):
 
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         out = gk._eval_spec(
             ("mul", "X1", 2.0),
@@ -420,7 +420,7 @@ class TestGenDomain:
         creator result follows so spelled/kernel evals never mix
         devices.  The spec's dtype attr still wins.
         """
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         spec = (
             "add",
@@ -3429,7 +3429,7 @@ class TestReductionTriton:
         pytest.importorskip("triton")
         if not torch.cuda.is_available():
             pytest.skip("needs cuda for triton")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         spec = ("sum", ("mul", "X1", "X2"), {"dim": (2,)})
         fn = gk.reduction_triton_bindings(
@@ -3448,7 +3448,7 @@ class TestReductionTriton:
         pytest.importorskip("triton")
         if not torch.cuda.is_available():
             pytest.skip("needs cuda for triton")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         spec = (
             "softmax",

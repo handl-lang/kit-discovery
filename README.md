@@ -11,7 +11,7 @@ still owns).
 
 `kit_discovery` is the **top of the torch stack**: it reads
 `mlopt_core`/`mlopt_orchestrator` (handl-lang/eqsat),
-`mlopt_torch`/`kit_carriers` (handl-lang/graphopt /
+`kit_torch`/`kit_carriers` (handl-lang/graphopt /
 handl-lang/kit-carriers) and the game layer (`gamekit` +
 `discoverykit`) — nothing may depend back on it.  `kit_cuda` is a
 lazy optional bind (CUDA play arms decline honestly when it is
@@ -41,7 +41,7 @@ kit-discovery = { git = "https://github.com/handl-lang/kit-discovery.git", tag =
 
 Substrate pins (`mlopt-core`, `mlopt-orchestrator`, `mlopt-dtypes`,
 `gamekit`, `discoverykit`, `kit-carriers`) resolve from their own
-repos — see `[tool.uv.sources]`; `mlopt-torch` resolves from
+repos — see `[tool.uv.sources]`; `kit-torch` resolves from
 `handl-lang/graphopt` through the consumer's sources.
 
 ## Verify

@@ -15,7 +15,7 @@ import json
 import pytest
 import torch
 
-import mlopt_torch.torch_bridge as tb
+import kit_torch.torch_bridge as tb
 from mlopt_core.ir import IR, Op, TensorType, Var
 from kit_discovery import handler_synth as hs
 from kit_discovery.lawdata import HANDLERS

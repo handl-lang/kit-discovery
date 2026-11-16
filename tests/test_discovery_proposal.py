@@ -838,7 +838,7 @@ def test_proposal_modules_import_without_torch():
     """``proposal``/``proposal_core``/``oracle``/``vocab`` import torch-free.
 
     Runs in a subprocess: ``sys.modules[name] = None`` makes the import
-    system raise ``ImportError`` for ``torch`` and ``mlopt_torch``, so a
+    system raise ``ImportError`` for ``torch`` and ``kit_torch``, so a
     clean run proves none of the four modules binds them at import
     time (torch binds lazily at call time; ``evaluate`` and
     ``propose_guarded`` take an injected ``numeric`` oracle instead).
@@ -846,7 +846,7 @@ def test_proposal_modules_import_without_torch():
     code = (
         "import sys\n"
         "sys.modules['torch'] = None\n"
-        "sys.modules['mlopt_torch'] = None\n"
+        "sys.modules['kit_torch'] = None\n"
         "import kit_discovery.oracle\n"
         "import kit_discovery.proposal\n"
         "import kit_discovery.proposal_core\n"

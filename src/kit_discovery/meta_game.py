@@ -69,7 +69,7 @@ The player
 ----------
 
 A small ``(state ⊕ action) -> logit`` MLP trained by REINFORCE with a
-running-mean baseline (the ``mlopt_torch.rl`` shape; the net here is
+running-mean baseline (the ``kit_torch.rl`` shape; the net here is
 local because construction actions are not rule names).  A *fixed
 corpus prior* is added to the learned logits — census-conditioned
 child-op frequency decayed by hole depth, plus "the op occurs on the
@@ -1282,7 +1282,7 @@ def train(
     """Train the policy by REINFORCE; return ``(model, reward hist)``.
 
     Sparse terminal reward with a running-mean baseline — the
-    ``mlopt_torch.rl`` advantage, simplified for one terminal payoff
+    ``kit_torch.rl`` advantage, simplified for one terminal payoff
     per play.
     """
     model = _PolicyNet(

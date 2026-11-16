@@ -91,7 +91,7 @@ from mlopt_core.ir import (
     op_repr_dag,
 )
 from mlopt_core.typing import INVALID, _shape_of
-from mlopt_torch.adapters import TorchSink
+from kit_torch.adapters import TorchSink
 
 # Sibling tools own the corpus, the census, the oracle and the
 # pipeline; reuse them so generated terms are judged by exactly the

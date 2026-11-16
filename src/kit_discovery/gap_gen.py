@@ -84,7 +84,7 @@ from mlopt_core.ir import Op, Param, TensorType, Var, op_repr
 from mlopt_core.traversal import expand as _term_expand
 from mlopt_core.traversal import subterms as _term_subterms
 from mlopt_core.typing import INVALID, _shape_of
-from mlopt_torch.adapters import TorchSink
+from kit_torch.adapters import TorchSink
 
 # Sibling tools own the corpus, the census, the oracle, the pipeline
 # and the five-gate validity checker; reuse them so a generated term

@@ -8,7 +8,7 @@ dissolution; the `mlopt-*` → `kit-*` rename).  The package descends
 from `tools/law_*.py`; the domain-free mining core was extracted
 earlier to `handl-lang/discoverykit` (plan 0034 phase 1), whose
 stay-side shims this package still owns.  Python 3.13, torch +
-`mlopt-core`/`mlopt-orchestrator`/`mlopt-torch`/`kit-carriers` +
+`mlopt-core`/`mlopt-orchestrator`/`kit-torch`/`kit-carriers` +
 `gamekit`/`discoverykit` on the eqsat/graphopt/game-layer stack.
 
 ## Layout
@@ -47,7 +47,7 @@ stay-side shims this package still owns.  Python 3.13, torch +
 - `tests/` — the package-bound suite (the test files carved out of
   graphopt's `tests/` whose imports stay inside this package's dep
   closure: `kit_discovery` + `mlopt_core`/`mlopt_orchestrator`/
-  `mlopt_torch`/`kit_carriers`/`mlopt_dtypes` + `gamekit`/
+  `kit_torch`/`kit_carriers`/`mlopt_dtypes` + `gamekit`/
   `discoverykit` + torch).  Cross-stack tests (anything touching
   `bench.*`, `kit_host_tensor`/`mlopt_host_tensor`, `mlopt_handl_peer`, `kit_onnx`,
   `kit_cuda`, the e2e model benches) stayed in graphopt and import
@@ -56,7 +56,7 @@ stay-side shims this package still owns.  Python 3.13, torch +
 ## Contracts
 
 - **Top of the stack** — `kit_discovery` reads everything below it
-  (`mlopt_torch`, `mlopt_orchestrator`, `mlopt_core`,
+  (`kit_torch`, `mlopt_orchestrator`, `mlopt_core`,
   `kit_carriers`, `gamekit`, `discoverykit`) and nothing may depend
   back on it; the import-linter `forbidden` contract enforces the
   upward edges (`kit_host_tensor`/`mlopt_host_tensor`, `kit_onnx`, `benchkit`,
@@ -70,8 +70,8 @@ stay-side shims this package still owns.  Python 3.13, torch +
   real modules.
 - Substrate deps: `mlopt-core`, `mlopt-orchestrator`,
   `mlopt-dtypes` (handl-lang/eqsat, `packages/` subdirs,
-  tag-pinned); `mlopt-torch` (handl-lang/graphopt,
-  `packages/mlopt-torch` subdir — resolved by the *consumer's*
+  tag-pinned); `kit-torch` (handl-lang/graphopt,
+  `packages/kit-torch` subdir — resolved by the *consumer's*
   `[tool.uv.sources]`; this repo's dev env binds it via a
   dev-group direct-URL, the kit-carriers dep-source lesson);
   `kit-carriers` (handl-lang/kit-carriers, tag-pinned);

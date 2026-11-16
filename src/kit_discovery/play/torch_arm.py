@@ -1,6 +1,6 @@
 """The ``torch`` domain arm — real ``nn.Module``s under the sink bound.
 
-Lifts modules through ``mlopt_torch.adapters.TorchSource`` (imported
+Lifts modules through ``kit_torch.adapters.TorchSource`` (imported
 lazily — this module stays torch-free at import), builds the case
 stream and the ``deliver`` hook that lowers a winning extraction to
 a verified runnable module.
@@ -84,7 +84,7 @@ def _torch_cases(
     """Small real ``nn.Module``s lifted to IR — the product board.
 
     Each case is a torch module exported through
-    ``mlopt_torch.adapters.TorchSource`` and played under the real
+    ``kit_torch.adapters.TorchSource`` and played under the real
     sink's ``supported_ops`` bound — kernel claims price at sink
     costs, not ambient vocabulary.  Modules that fail to export are
     skipped honestly.  Torch is imported lazily — the registry
@@ -96,7 +96,7 @@ def _torch_cases(
     historical stream.
     """
     import torch
-    from mlopt_torch.adapters import TorchSink, TorchSource
+    from kit_torch.adapters import TorchSink, TorchSource
 
     zoo = _torch_modules()
     names = list(zoo) if modules is None else list(modules)
@@ -178,7 +178,7 @@ def _is_plan_tape(module: Any) -> bool:
     if hasattr(module, "capture_cuda_graph"):
         return True
     try:
-        from mlopt_torch.torch_bridge import IRModule
+        from kit_torch.torch_bridge import IRModule
     except ImportError:  # pragma: no cover — torch-free env
         return False
     return isinstance(module, IRModule) and (
@@ -322,7 +322,7 @@ def _torch_deliver(board: ma.MetaArena, case: Any, traj: Any) -> dict:
     timing/inspection) and is NEVER reported as ``delivered``.
     """
     from mlopt_core.ir import IR
-    from mlopt_torch.adapters import TorchSink
+    from kit_torch.adapters import TorchSink
 
     ex = case[5]
     best = board.eg.extract_best(board.root, board.feasible_cost)

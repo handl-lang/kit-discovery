@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 dependencies = [
     "mlopt-core",
     "mlopt-orchestrator",
-    "mlopt-torch",
+    "kit-torch",
     "kit-carriers",
     "gamekit",
     "discoverykit",
@@ -20,13 +20,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    # mlopt-torch is a runtime dep resolved by the *consumer's*
-    # [tool.uv.sources] (workspace member in graphopt, git subdir pin in
-    # mlopt/kernelopt) — dep sources are honored transitively and no
+    # kit-torch is a runtime dep resolved by the *consumer's*
+    # [tool.uv.sources] — dep sources are honored transitively and no
     # single pin fits all consumers, so this repo's own dev env binds it
     # here as a direct git dep instead of a [tool.uv.sources] entry
     # (the kit-carriers dep-source lesson).
-    "mlopt-torch @ git+https://github.com/handl-lang/graphopt.git@v0.1.21#subdirectory=packages/mlopt-torch",
+    "kit-torch @ git+https://github.com/handl-lang/kit-torch.git@v0.1.0",
     "pytest>=7.0",
     "ruff>=0.6",
     "coverage>=7.0",
@@ -109,7 +108,7 @@ omit = ["*/tests/*"]
 # Measured on the package-bound suite's `-m "not slow"` lane (the
 # test files carved out of graphopt's tests/ whose imports stay
 # inside this package's dep closure: kit_discovery +
-# mlopt_core/mlopt_orchestrator/mlopt_torch/kit_carriers +
+# mlopt_core/mlopt_orchestrator/kit_torch/kit_carriers +
 # gamekit/discoverykit + torch — 2,936 tests, chunked coverage run,
 # 2026-11-16).  The `slow`-marked tests only add coverage, so the
 # full-suite ci.sh lane measures at or above this floor; the floor
@@ -130,7 +129,7 @@ exclude_also = [
 ]
 
 # import-linter: kit_discovery sits at the top of the torch stack —
-# it reads mlopt_torch/mlopt_orchestrator/mlopt_core/kit_carriers and
+# it reads kit_torch/mlopt_orchestrator/mlopt_core/kit_carriers and
 # the game layer (gamekit/discoverykit, whose stay-side shims it
 # owns), and nothing may depend back on it.  ``kit_cuda`` is a lazy
 # optional bind (ImportError → honest decline in play/gen.py and

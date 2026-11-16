@@ -375,7 +375,7 @@ class TestEdges:
         # artifact — the record reports delivered_unverified and
         # keeps the module for measurement
         pytest.importorskip("torch")
-        from mlopt_torch.report import VerifyReport
+        from kit_torch.report import VerifyReport
 
         cases = play._torch_cases(0, 1)
         case = cases[0]
@@ -765,7 +765,7 @@ class TestScanSites:
         # subterm; the spec spelled under it IS the member — which
         # saturation proved equal to the source term
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -948,7 +948,7 @@ class TestSeqScanSites:
         # the minted fold must denote the unrolled chain's value —
         # the whole point of the collector's index/shape checks
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -1083,7 +1083,7 @@ class TestSeqScanSites:
         # unrolled chain, bit for bit — the leaf_env binding is what
         # keeps the two same-spec folds honest
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -1266,7 +1266,7 @@ class TestSeqScanSites:
         # the lifted operands broadcast to the (b,T,d,d) frame —
         # state space (b,d,d) is what the (b,d,d) H binds
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         bindings = tb._IR_TO_TORCH
         env = {
@@ -1288,7 +1288,7 @@ class TestSeqScanSites:
         # the lifted fold must still denote the unrolled chain
         # exactly — the view commute is only sound if it is
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -1447,7 +1447,7 @@ class TestSeqScanSites:
         # spell in-step projections — hoisting is only sound if the
         # per-step values agree bit-for-bit
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -1573,7 +1573,7 @@ class TestSeqScanSites:
     def _commute_check(term, env):
         """Mint the site and grade the fold against the chain."""
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -2052,7 +2052,7 @@ class TestSeqmSites:
         # the minted fold must denote the unrolled delta-rule chain
         # exactly — soundness before any pricing
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -2088,7 +2088,7 @@ class TestSeqmSites:
         # the gated spelling carries a scalar ``a_t`` map AND the
         # in-residual ``alpha`` gate — both must survive the fold
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         from kit_discovery import genkernel as gk
 
@@ -2593,7 +2593,7 @@ class TestSeqsTrajectorySites:
             "Q": torch.randn(2, 3, 4),
             "H0": torch.randn(2, 4, 4),
         }
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         bindings = tb._IR_TO_TORCH
         vals = {
@@ -2638,7 +2638,7 @@ class TestSeqsTrajectorySites:
         # select(traj, t) IS S_t, so every consumer reads the same
         # tensor the spelled chain produced.
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
         from kit_discovery import genkernel as gk
 
         term = self._traj_recurrence()
@@ -2831,7 +2831,7 @@ class TestSeqtReadoutSites:
             "Q": torch.randn(2, 3, 4),
             "H0": torch.randn(2, 4, 4),
         }
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
 
         vals = {
             m: gk._bound_val(t, var_env, tb._IR_TO_TORCH)
@@ -2878,7 +2878,7 @@ class TestSeqtReadoutSites:
     def test_seqt_route_preserves_values(self):
         # delivered module evaluates to the spelled module's output
         torch = pytest.importorskip("torch")
-        import mlopt_torch.torch_bridge as tb
+        import kit_torch.torch_bridge as tb
         from kit_discovery import genkernel as gk
 
         term = self._traj_recurrence()

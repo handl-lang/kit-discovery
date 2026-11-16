@@ -3,7 +3,7 @@
 The whole candidate-proposal machinery moved to
 :mod:`kit_discovery.proposal_core` at the plan-0034/0035 torch-seam
 split: the records, generators, ranker and guarded second-chance move
-are torch-free at import time there (torch/``mlopt_torch`` bind
+are torch-free at import time there (torch/``kit_torch`` bind
 lazily at call time, and ``evaluate``/``propose_guarded`` take an
 injected ``numeric`` oracle).  Every name this module used to define
 — public *and* private, including the ``lp._x`` reach-throughs
