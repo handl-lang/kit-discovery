@@ -16,6 +16,7 @@ import math
 
 import pytest
 from mlopt_core.ir import Const, Op, Param, TensorType, Var
+
 from kit_discovery.hnl_codec import (
     HnlCodecError,
     term_from_json,
@@ -69,7 +70,7 @@ class TestTreeRoundTrip:
         assert term_from_json(json.loads(blob)) == t
 
     def test_unsupported_leaf_declines(self) -> None:
-        with pytest.raises(TypeError, match="unencodable"):
+        with pytest.raises(TypeError, match="wireable"):
             term_to_json("m")  # a metavar string is not a program
 
 
@@ -107,7 +108,7 @@ class TestNonfinite:
             validate=False,
         )
         j = term_to_json(t)
-        attrs = j["Op"]["lit"]["__mlopt_attrs__"]
+        attrs = j["Op"]["attrs"]
         assert attrs["min"] == {"__nonfinite__": "nan"}
         assert attrs["max"] == {"__nonfinite__": "inf"}
         json.dumps(j, allow_nan=False)
@@ -124,7 +125,7 @@ class TestNonfinite:
             validate=False,
         )
         j = term_to_json(t)
-        wire = j["Op"]["lit"]["__mlopt_attrs__"]["pad"]
+        wire = j["Op"]["attrs"]["pad"]
         # attr_to_data spells the tuple as {"__tuple__": [...]} — the
         # tag nests inside, and decode restores both layers.
         assert wire["__tuple__"][0] == {"__nonfinite__": "-inf"}
@@ -146,7 +147,7 @@ class TestNonfinite:
     def test_finite_floats_untouched(self) -> None:
         t = Op.make("clamp", _x(), min=0.5, max=-2.25, validate=False)
         j = term_to_json(t)
-        attrs = j["Op"]["lit"]["__mlopt_attrs__"]
+        attrs = j["Op"]["attrs"]
         assert attrs == {"min": 0.5, "max": -2.25}
         assert term_from_json(j) == t
 
@@ -185,11 +186,14 @@ class TestDagRecord:
         assert rec["__tag__"] == "dag.program"
         assert isinstance(rec["nodes"], list)
         assert isinstance(rec["root"], int)
-        # compactness: 6 distinct nodes vs the tree's 9 spellings
-        assert len(rec["nodes"]) == 6
-        # Op args are node-table indices, children before parents
+        # compactness: 6 distinct term nodes + the shared Const(1)
+        # dim node vs the tree's 9 spellings
+        assert len(rec["nodes"]) == 7
+        # Op args AND dim are node-table indices, children before parents
         for i, n in enumerate(rec["nodes"]):
             if "Op" in n:
+                assert isinstance(n["Op"]["dim"], int)
+                assert 0 <= n["Op"]["dim"] < i
                 for a in n["Op"]["args"]:
                     assert isinstance(a, int) and 0 <= a < i
 
@@ -253,16 +257,16 @@ class TestDagRecord:
             term_from_json(["not", "a", "dict"])
 
     def test_unknown_node_kind_declines(self) -> None:
-        with pytest.raises(HnlCodecError, match="bad leaf encoding"):
+        with pytest.raises(HnlCodecError, match="undecodable"):
             term_from_json({"mvar": "x"})
 
     def test_unencodable_leaf_in_dag_declines(self) -> None:
         # a metavar string leaf shared twice routes through the dag
         # encoder, which refuses it exactly like the tree encoder
         t = Op.make("add", "m", "m", validate=False)
-        with pytest.raises(TypeError, match="unencodable"):
+        with pytest.raises(TypeError, match="wireable"):
             term_to_json(t)
-        with pytest.raises(TypeError, match="unencodable"):
+        with pytest.raises(TypeError, match="wireable"):
             term_to_json(t, dag=True)
 
     def test_unserializable_const_declines(self) -> None:
@@ -287,12 +291,12 @@ class TestDagRecord:
 
     def test_dag_node_with_attrs_round_trip(self) -> None:
         # an attr-carrying Op inside the node table keeps its
-        # __mlopt_attrs__ lit record
+        # canonical ``attrs`` field record
         s = Op.make("clamp", _x(), min=0.25, validate=False)
         t = Op.make("mul", s, s)
         j = term_to_json(t)
         ops = [n["Op"] for n in j["Opaque"]["nodes"] if "Op" in n]
-        assert any("lit" in o for o in ops)
+        assert any("attrs" in o for o in ops)
         assert term_from_json(j) == t
 
     def test_nested_non_dict_arg_declines(self) -> None:
@@ -460,3 +464,134 @@ class TestAttrsField:
         }
         with pytest.raises(HnlCodecError, match="bad attrs payload"):
             term_from_json(j)
+
+
+# ---------------------------------------------------------------------------
+#  ADR-0178 E-3 — the shim delegates to ``mlopt_core.term_json``
+# ---------------------------------------------------------------------------
+
+
+class TestTermJsonDelegation:
+    """``hnl_codec`` IS ``term_json`` — same objects, canonical profile."""
+
+    def test_public_names_are_term_json(self) -> None:
+        from mlopt_core import term_json
+
+        assert term_to_json is term_json.term_to_json
+        assert term_from_json is term_json.term_from_json
+        assert HnlCodecError is term_json.TermJsonError
+
+    def test_canonical_emit_spellings(self) -> None:
+        # the profile this surface emits: Native source, ``attrs``
+        # field, structured Arr leaves, index dim in dag records
+        t = Op.make("clamp", _x(), min=0.5, validate=False)
+        j = term_to_json(t)
+        node = j["Op"]
+        assert node["source"] == "Native"
+        assert "attrs" in node and "lit" not in node
+        leaf = term_to_json(_x())
+        assert "Arr" in leaf
+        assert leaf["Arr"]["value"]["__mlopt_leaf__"] == "var"
+
+    def test_round_trip_against_term_json_directly(self) -> None:
+        from mlopt_core import term_json
+
+        t = _shared_term()
+        for dag in (None, True, False):
+            if dag is False:
+                continue  # shared term — declines by contract
+            a = term_to_json(t, dag=dag)
+            b = term_json.term_to_json(t, dag=dag)
+            assert a == b
+            assert term_from_json(a) == term_json.term_from_json(b) == t
+
+
+class TestLegacySpellingsDecode:
+    """Every historical wire spelling still decodes — permanently."""
+
+    def test_foreign_tensor_source_ignored(self) -> None:
+        # the pre-shim spelling: {"Foreign": "tensor"} + lit attrs
+        j = {
+            "Op": {
+                "dim": {"Const": {"value": 1}},
+                "name": "clamp",
+                "args": [
+                    {
+                        "Arr": {
+                            "dim": {"Const": {"value": 1}},
+                            "value": {
+                                "__mlopt_leaf__": "var",
+                                "name": "x",
+                                "shape": [2, 3],
+                            },
+                        }
+                    }
+                ],
+                "source": {"Foreign": "tensor"},
+                "lit": {"__mlopt_attrs__": {"min": 0.5}},
+            }
+        }
+        back = term_from_json(j)
+        assert back == Op.make("clamp", _x(), min=0.5, validate=False)
+
+    def test_const_str_leaf_decodes_to_var(self) -> None:
+        # the legacy eqsat spelling — a Const string carrying the
+        # __mlopt_leaf__ JSON payload — decodes to the real leaf,
+        # never a silent Const(str)
+        payload = "__mlopt_leaf__:" + json.dumps(
+            {"k": "var", "n": "x", "s": [2, 3]}
+        )
+        back = term_from_json({"Const": {"value": payload}})
+        assert back == _x()
+        assert isinstance(back, Var)
+
+    def test_dag_record_with_nested_dim_decodes(self) -> None:
+        # pre-shim dag records spelled Op.dim as a nested Const
+        # record, not a node index — decode accepts and ignores it
+        x = {
+            "Arr": {
+                "dim": {"Const": {"value": 1}},
+                "value": {
+                    "__mlopt_leaf__": "var",
+                    "name": "x",
+                    "shape": [2, 3],
+                },
+            }
+        }
+        j = {
+            "Opaque": {
+                "__tag__": "dag.program",
+                "nodes": [
+                    x,
+                    {
+                        "Op": {
+                            "dim": {"Const": {"value": 1}},
+                            "name": "neg",
+                            "args": [0],
+                            "source": {"Foreign": "tensor"},
+                        }
+                    },
+                ],
+                "root": 1,
+            }
+        }
+        assert term_from_json(j) == Op.make("neg", _x(), validate=False)
+
+    def test_other_sources_decode_identically(self) -> None:
+        base = {
+            "Op": {
+                "name": "neg",
+                "args": [{"Const": {"value": 1}}],
+            }
+        }
+        want = term_from_json(base)
+        for src in (
+            "Native",
+            {"Foreign": "tensor"},
+            {"Foreign": "onnx"},
+            "Judgment",
+            {"DynamicForeign": "x"},
+            None,
+        ):
+            j = {"Op": {**base["Op"], "source": src}}
+            assert term_from_json(j) == want
