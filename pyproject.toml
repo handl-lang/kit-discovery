@@ -147,6 +147,7 @@ type = "forbidden"
 source_modules = ["kit_discovery"]
 forbidden_modules = [
     "mlopt_host_tensor",
+    "kit_host_tensor",
     "kit_onnx",
     "benchkit",
     "mlopt_native",

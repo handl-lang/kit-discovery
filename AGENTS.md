@@ -49,7 +49,7 @@ stay-side shims this package still owns.  Python 3.13, torch +
   closure: `kit_discovery` + `mlopt_core`/`mlopt_orchestrator`/
   `mlopt_torch`/`kit_carriers`/`mlopt_dtypes` + `gamekit`/
   `discoverykit` + torch).  Cross-stack tests (anything touching
-  `bench.*`, `mlopt_host_tensor`, `mlopt_handl_peer`, `kit_onnx`,
+  `bench.*`, `kit_host_tensor`/`mlopt_host_tensor`, `mlopt_handl_peer`, `kit_onnx`,
   `kit_cuda`, the e2e model benches) stayed in graphopt and import
   `kit_discovery` as a git dep.
 
@@ -59,7 +59,7 @@ stay-side shims this package still owns.  Python 3.13, torch +
   (`mlopt_torch`, `mlopt_orchestrator`, `mlopt_core`,
   `kit_carriers`, `gamekit`, `discoverykit`) and nothing may depend
   back on it; the import-linter `forbidden` contract enforces the
-  upward edges (`mlopt_host_tensor`, `kit_onnx`, `benchkit`,
+  upward edges (`kit_host_tensor`/`mlopt_host_tensor`, `kit_onnx`, `benchkit`,
   `mlopt_native`, the `mlopt` product).  `kit_cuda` is a lazy
   optional bind (`ImportError` → honest decline in `play/gen.py` /
   `play/torch_arm.py`) — deliberately undeclared.

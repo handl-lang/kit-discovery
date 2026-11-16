@@ -13,7 +13,7 @@ bridge that lets handl-native models enter mlopt search.  This is a
   before parsing; anything else is a syntax error, not a guess;
 * every ``tensor.<op>`` call must name an op in :data:`_HANDLERS` —
   the covered set is exactly the mlopt IR ops whose ``tensor.*``
-  spelling is pinned by ``mlopt_host_tensor.bindings.HOST_BINDINGS``
+  spelling is pinned by ``kit_host_tensor.bindings.HOST_BINDINGS``
   (plus ``batch_norm``/``max_pool2d``/``pack``, which the host surface
   carries but the executor table does not).  Anything else —
   ``tensor.from_list`` in term position, ``tensor.chunk``'s Array
@@ -614,7 +614,7 @@ def _h_var_std(op: str):
     """``tensor.var/std(t, dim?, unbiased?, keepdim?)``.
 
     The host port's third slot is the *unbiased* bool — the generated
-    decoder has no ``correction`` slot (``mlopt_host_tensor.bindings``
+    decoder has no ``correction`` slot (``kit_host_tensor.bindings``
     documents ``correction ∈ {0,1}`` mapping onto it): ``true`` →
     ``correction=1``, ``false`` → ``correction=0``.
     """
@@ -1049,7 +1049,7 @@ def _h_t(imp: _Importer, args: list[Any]) -> Any:
 # ---------------------------------------------------------------------------
 
 #: Attr-free unary ops — ``tensor.op(t)`` → ``Op(op, t)``.  The set is
-#: ``mlopt_host_tensor.bindings``' ``_u1`` builders (the IR ops whose
+#: ``kit_host_tensor.bindings``' ``_u1`` builders (the IR ops whose
 #: host port takes exactly one tensor and no attrs); ``numel``/``item``
 #: return scalars but are still one-operand IR ops.
 _UNARY_OPS = frozenset(
@@ -1109,7 +1109,7 @@ _UNARY_OPS = frozenset(
 )
 
 #: Attr-free binary ops — ``tensor.op(a, b)`` → ``Op(op, a, b)``.
-#: ``mlopt_host_tensor.bindings``' ``_u2``/``_bin_scalar_rhs`` set plus
+#: ``kit_host_tensor.bindings``' ``_u2``/``_bin_scalar_rhs`` set plus
 #: the elementwise max/min family (``maximum``/``minimum`` — ``max``/
 #: ``min`` themselves are reductions and decline, see below).
 _BINARY_OPS = frozenset(
