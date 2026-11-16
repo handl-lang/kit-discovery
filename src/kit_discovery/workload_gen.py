@@ -82,6 +82,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
+from kit_torch.adapters import TorchSink
 from mlopt_core.ir import (
     Const,
     Op,
@@ -91,7 +92,6 @@ from mlopt_core.ir import (
     op_repr_dag,
 )
 from mlopt_core.typing import INVALID, _shape_of
-from kit_torch.adapters import TorchSink
 
 # Sibling tools own the corpus, the census, the oracle and the
 # pipeline; reuse them so generated terms are judged by exactly the

@@ -75,8 +75,8 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from mlopt_core.ir import IR
 from kit_torch.adapters import TorchSink, TorchSource
+from mlopt_core.ir import IR
 
 from kit_discovery.impact import TermCase, _ir_of
 

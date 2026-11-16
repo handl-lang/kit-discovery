@@ -22,6 +22,8 @@ from typing import Any
 
 import torch
 import torch.nn as nn
+from kit_torch.adapters import TorchSink
+from kit_torch.torch_bridge import export_to_ir
 from mlopt_core.ir import (
     Op,
     TensorType,
@@ -29,8 +31,6 @@ from mlopt_core.ir import (
     term_from_data,
     term_to_data,
 )
-from kit_torch.adapters import TorchSink
-from kit_torch.torch_bridge import export_to_ir
 
 from kit_discovery import intake_dir
 from kit_discovery.impact import (

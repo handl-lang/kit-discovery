@@ -321,8 +321,8 @@ def _torch_deliver(board: ma.MetaArena, case: Any, traj: Any) -> dict:
     ``delivered_unverified`` (the module stays on the record for
     timing/inspection) and is NEVER reported as ``delivered``.
     """
-    from mlopt_core.ir import IR
     from kit_torch.adapters import TorchSink
+    from mlopt_core.ir import IR
 
     ex = case[5]
     best = board.eg.extract_best(board.root, board.feasible_cost)
