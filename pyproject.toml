@@ -3,14 +3,152 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mlopt-discovery"
-version = "0.1.0dev"
-description = "Law-discovery engine for mlopt: census, proposal, oracles, evidence store and intake (formerly tools/law_*.py)."
+name = "kit-discovery"
+version = "0.1.0"
+description = "Law-discovery engine for the mlopt game: census, proposal, oracles, evidence store, intake and the play-domain registry. Split from handl-lang/graphopt packages/mlopt-discovery (P3 Step D-1d; formerly tools/law_*.py)."
+readme = "README.md"
 requires-python = ">=3.11"
-# kit-carriers: state_reindex imports kit_carriers.om/.xcarrier at
-# module level (the carrier law tables it reindexes over) — declared
-# here; it resolves through the consumer's [tool.uv.sources].
-dependencies = ["mlopt-core", "mlopt-torch", "mlopt-orchestrator", "kit-carriers", "gamekit", "discoverykit", "torch>=2.0"]
+dependencies = [
+    "mlopt-core",
+    "mlopt-orchestrator",
+    "mlopt-torch",
+    "kit-carriers",
+    "gamekit",
+    "discoverykit",
+    "torch>=2.0",
+]
+
+[dependency-groups]
+dev = [
+    # mlopt-torch is a runtime dep resolved by the *consumer's*
+    # [tool.uv.sources] (workspace member in graphopt, git subdir pin in
+    # mlopt/kernelopt) — dep sources are honored transitively and no
+    # single pin fits all consumers, so this repo's own dev env binds it
+    # here as a direct git dep instead of a [tool.uv.sources] entry
+    # (the kit-carriers dep-source lesson).
+    "mlopt-torch @ git+https://github.com/handl-lang/graphopt.git@v0.1.16#subdirectory=packages/mlopt-torch",
+    "pytest>=7.0",
+    "ruff>=0.6",
+    "coverage>=7.0",
+    "ty==0.0.84",
+    "import-linter>=2.15",
+]
+
+# Substrate + game-layer pins for local dev — consumers that git-pin
+# `kit-discovery` resolve `mlopt-*`/`gamekit`/`discoverykit` through
+# their own `[tool.uv.sources]` (uv honours sources only at the
+# workspace root).  kit-carriers is pinned at repo root like the
+# consumers do.
+[tool.uv.sources]
+mlopt-core = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-core", tag = "v0.1.9" }
+mlopt-orchestrator = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-orchestrator", tag = "v0.1.9" }
+mlopt-dtypes = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-dtypes", tag = "v0.1.9" }
+gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.11" }
+discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.17" }
+kit-carriers = { git = "https://github.com/handl-lang/kit-carriers.git", tag = "v0.1.1" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# The canonical fragment vocabulary (``vocabdir.CANONICAL_FILES``) —
+# shipped inside the package so ``vocabdir.default_vocab_dir()``
+# resolves it from both this checkout and an installed wheel.
+[tool.setuptools.package-data]
+kit_discovery = ["vocab/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "requires_cuda: test allocates CUDA tensors; skipped at setup when CUDA is absent or OOMs on a probe allocation",
+    "slow: minutes-scale test (saturation at large budgets); iterate with -m \"not slow\", run the full suite before committing",
+    "e2e: crosses an external engine boundary (torch.compile/Inductor, egraph-run/hnl-run bridges); module-level marker, tagged on boundary-purpose files only",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 72
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "D"]
+ignore = [
+    "E501",     # line length — math/notation lines exceed 72 legitimately
+    "B008",     # function-call in default arg — used for cost-fn defaults
+    "SIM108",   # ternary suggestion — if/else often clearer here
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+# --- typecheck (ty) -----------------------------------------------
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.src]
+include = ["src"]
+exclude = []
+
+[tool.ty.terminal]
+error-on-warning = false
+
+[tool.ty.rules]
+# The moved modules keep the lazy-bind seam contract: ``bench.*``
+# (graphopt's repo-root package, impact.py's model_cases) and
+# ``kit_cuda`` (the optional CUDA play arm) are imported inside
+# functions at call time and decline honestly when absent.  ty cannot
+# see function-level intent, so unresolved lazy imports are warnings,
+# not errors — a module-level bind of either is still a hard error
+# (the import-linter contract covers the declared closure).
+"unresolved-import" = "warn"
+
+[tool.coverage.run]
+source = ["kit_discovery"]
+branch = true
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+# Measured on the package-bound suite's `-m "not slow"` lane (the
+# test files carved out of graphopt's tests/ whose imports stay
+# inside this package's dep closure: kit_discovery +
+# mlopt_core/mlopt_orchestrator/mlopt_torch/kit_carriers +
+# gamekit/discoverykit + torch — 2,936 tests, chunked coverage run,
+# 2026-11-16).  The `slow`-marked tests only add coverage, so the
+# full-suite ci.sh lane measures at or above this floor; the floor
+# is the honest re-measurement point, ratcheted upward only (same
+# convention as kit-onnx/kit-carriers/kit-cuda/discoverykit/
+# gamekit/eqsat).  The heavy exercise of the cross-stack paths
+# (bench-driven mint loops, the play domains seated on real boards)
+# still runs through graphopt's suite via the git dep.
+fail_under = 83
+show_missing = true
+exclude_also = [
+    "if __name__ == ['\"]__main__['\"]:",
+    "if TYPE_CHECKING:",
+    "def __repr__",
+    "raise NotImplementedError",
+    "@overload",
+    "return NotImplemented",
+]
+
+# import-linter: kit_discovery sits at the top of the torch stack —
+# it reads mlopt_torch/mlopt_orchestrator/mlopt_core/kit_carriers and
+# the game layer (gamekit/discoverykit, whose stay-side shims it
+# owns), and nothing may depend back on it.  ``kit_cuda`` is a lazy
+# optional bind (ImportError → honest decline in play/gen.py and
+# play/torch_arm.py), so it is deliberately absent from
+# ``forbidden_modules``.  ``include_external_packages`` makes the
+# torch bind visible to the contract.
+[tool.importlinter]
+root_packages = ["kit_discovery"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "kit_discovery binds only its declared dep closure"
+type = "forbidden"
+source_modules = ["kit_discovery"]
+forbidden_modules = [
+    "mlopt_host_tensor",
+    "kit_onnx",
+    "benchkit",
+    "mlopt_native",
+    "mlopt",
+]
