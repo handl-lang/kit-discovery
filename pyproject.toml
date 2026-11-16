@@ -26,7 +26,7 @@ dev = [
     # single pin fits all consumers, so this repo's own dev env binds it
     # here as a direct git dep instead of a [tool.uv.sources] entry
     # (the kit-carriers dep-source lesson).
-    "mlopt-torch @ git+https://github.com/handl-lang/graphopt.git@v0.1.16#subdirectory=packages/mlopt-torch",
+    "mlopt-torch @ git+https://github.com/handl-lang/graphopt.git@v0.1.21#subdirectory=packages/mlopt-torch",
     "pytest>=7.0",
     "ruff>=0.6",
     "coverage>=7.0",
@@ -40,12 +40,12 @@ dev = [
 # workspace root).  kit-carriers is pinned at repo root like the
 # consumers do.
 [tool.uv.sources]
-mlopt-core = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-core", tag = "v0.1.9" }
-mlopt-orchestrator = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-orchestrator", tag = "v0.1.9" }
-mlopt-dtypes = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-dtypes", tag = "v0.1.9" }
-gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.11" }
-discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.17" }
-kit-carriers = { git = "https://github.com/handl-lang/kit-carriers.git", tag = "v0.1.1" }
+mlopt-core = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-core", tag = "v0.1.10" }
+mlopt-orchestrator = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-orchestrator", tag = "v0.1.10" }
+mlopt-dtypes = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-dtypes", tag = "v0.1.10" }
+gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.12" }
+discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.20" }
+kit-carriers = { git = "https://github.com/handl-lang/kit-carriers.git", tag = "v0.1.3" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
