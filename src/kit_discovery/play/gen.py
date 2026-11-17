@@ -11,6 +11,7 @@ the probe arms use (:func:`_time_module`, :func:`_has_triton`).
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 from typing import Any
 
 from mlopt_core.cost.basic import count_cost
@@ -930,6 +931,8 @@ def _case_tail(
     *,
     gen_reps: int = 20,
     bounds: ProbeBounds | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> tuple:
     """Run the shared gen-domain intake tail on an already-lifted term.
 
@@ -961,6 +964,15 @@ def _case_tail(
 
     ``None`` keeps the historical unbounded zoo behaviour.
 
+    *margin*/*margin_fn* are the opt-in regime-margin overrides
+    (``genkernel.profitable``'s keep threshold — a
+    ``genkernel.regime_margins`` table callable tightens the regimes
+    whose site-level keeps don't compose to module parity): they
+    merge into *bounds* (an explicit ``ProbeBounds.margin``/
+    ``margin_fn`` always wins over the corresponding ``None``
+    kwarg), so the intake sweep AND ``_gen_board``'s fold/claim
+    gates price every claim under the same margins.
+
     Returns the ``(name, term, decls, tag, supported, ex)`` tuple
     ``gen_probe`` reads — ``ex["_gen_claims_gated"]`` marks that
     ``profitable`` already ran so ``_gen_board``'s offer gate does
@@ -972,6 +984,22 @@ def _case_tail(
     from kit_discovery.meta_arena import _canon_concrete
 
     bounds = bounds if bounds is not None else ProbeBounds()
+    if margin is not None or margin_fn is not None:
+        # getattr: a ProbeBounds from a pre-margin discoverykit pin
+        # lacks the fields — treat them as unset rather than raise
+        bounds = replace(
+            bounds,
+            margin=(
+                getattr(bounds, "margin", None)
+                if margin is None
+                else margin
+            ),
+            margin_fn=(
+                getattr(bounds, "margin_fn", None)
+                if margin_fn is None
+                else margin_fn
+            ),
+        )
     covered = {
         _canon_concrete(h["pattern"]) for h in lawdata.HANDLERS.values()
     }
@@ -1047,7 +1075,13 @@ def _case_tail(
     )
 
 
-def _zoo_case(wl: Any, *, dtype: str = "fp64") -> Any:
+def _zoo_case(
+    wl: Any,
+    *,
+    dtype: str = "fp64",
+    margin: float | None = None,
+    margin_fn: Any = None,
+) -> Any:
     """Build a held-out zoo workload as a gen-domain case tuple.
 
     ``dtype`` is the **intake** dtype.  ``fp64`` is the convention every
@@ -1055,10 +1089,20 @@ def _zoo_case(wl: Any, *, dtype: str = "fp64") -> Any:
     the two disagree on 12 of 65 zoo modules — a folded body's sign is
     the backend kernel's, not the IR's.  The IR is the same either way;
     only the leaves, the feeds and the refinery's measurements move.
+
+    *margin*/*margin_fn* are the opt-in regime-margin overrides —
+    see :func:`_case_tail`.
     """
     model, feed, ir, leaves = _zoo_export(wl, dtype=dtype)
     return _case_tail(
-        ir, leaves, feed, model, f"zoo:{wl.name}", wl.name
+        ir,
+        leaves,
+        feed,
+        model,
+        f"zoo:{wl.name}",
+        wl.name,
+        margin=margin,
+        margin_fn=margin_fn,
     )
 
 
@@ -1083,6 +1127,8 @@ def zoo_probe(
     t: int = 8,
     b: int = 2,
     pay_gate: bool = False,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> list[dict]:
     """``gen_probe`` over the held-out model zoo — the real corpus.
 
@@ -1100,23 +1146,47 @@ def zoo_probe(
     ``"pay"``/``"unknown"`` proceed exactly as today — the gate only
     ever removes budget, it never changes what a measured workload
     does.
+
+    *margin*/*margin_fn* are the opt-in regime-margin overrides for
+    the intake ``profitable`` sweep — see :func:`_case_tail`.
     """
     if pay_gate:
-        return _zoo_probe_gated(d=d, t=t, b=b, reps=reps)
-    return _zoo_probe_impl(d=d, t=t, b=b, reps=reps)
+        return _zoo_probe_gated(
+            d=d, t=t, b=b, reps=reps, margin=margin, margin_fn=margin_fn
+        )
+    return _zoo_probe_impl(
+        d=d, t=t, b=b, reps=reps, margin=margin, margin_fn=margin_fn
+    )
 
 
-def _zoo_probe_impl(*, reps: int, d: int, t: int, b: int) -> list[dict]:
+def _zoo_probe_impl(
+    *,
+    reps: int,
+    d: int,
+    t: int,
+    b: int,
+    margin: float | None = None,
+    margin_fn: Any = None,
+) -> list[dict]:
     """Run the ungated per-workload loop (``zoo_probe``'s original body)."""
     from kit_discovery import zoo as _zoo
 
     return [
-        _zoo_probe_workload(wl, reps=reps) for wl in _zoo.zoo(d, t, b)
+        _zoo_probe_workload(
+            wl, reps=reps, margin=margin, margin_fn=margin_fn
+        )
+        for wl in _zoo.zoo(d, t, b)
     ]
 
 
 def _zoo_probe_gated(
-    *, reps: int, d: int, t: int, b: int
+    *,
+    reps: int,
+    d: int,
+    t: int,
+    b: int,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> list[dict]:
     """``zoo_probe`` with the pay gate: skip before the intake sweep."""
     from kit_discovery import zoo as _zoo
@@ -1135,14 +1205,24 @@ def _zoo_probe_gated(
                 }
             )
             continue
-        rows.append(_zoo_probe_workload(wl, reps=reps))
+        rows.append(
+            _zoo_probe_workload(
+                wl, reps=reps, margin=margin, margin_fn=margin_fn
+            )
+        )
     return rows
 
 
-def _zoo_probe_workload(wl: Any, *, reps: int) -> dict:
+def _zoo_probe_workload(
+    wl: Any,
+    *,
+    reps: int,
+    margin: float | None = None,
+    margin_fn: Any = None,
+) -> dict:
     """One workload's ``_zoo_case`` + ``gen_probe`` row, or the decline."""
     try:
-        case = _zoo_case(wl)
+        case = _zoo_case(wl, margin=margin, margin_fn=margin_fn)
     except Exception as exc:
         return {
             "case": f"zoo:{wl.name}",

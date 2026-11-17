@@ -474,6 +474,8 @@ def _case_tail(
     bounds: ProbeBounds | None = None,
     referee: dict | None = None,
     spec_node_cap: int | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> tuple:
     """Run ``play._case_tail`` on an already-lifted term.
 
@@ -488,7 +490,8 @@ def _case_tail(
     *bounds* is the :class:`ProbeBounds` — see ``play._case_tail``.
     The legacy *referee*/*spec_node_cap* kwargs still resolve (see
     :func:`_coerce_bounds`); ``None`` everywhere keeps the
-    historical zoo behaviour.
+    historical zoo behaviour.  *margin*/*margin_fn* are the opt-in
+    regime-margin overrides — see ``play._case_tail``.
     """
     from kit_discovery import play
 
@@ -503,6 +506,8 @@ def _case_tail(
             label,
             gen_reps=gen_reps,
             bounds=bounds,
+            margin=margin,
+            margin_fn=margin_fn,
         )
 
 
@@ -516,6 +521,8 @@ def model_board(
     bounds: ProbeBounds | None = None,
     referee: dict | None = None,
     spec_node_cap: int | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> tuple[tuple, TermCase, dict]:
     """Export *model* and build its gen-domain board — row 0.
 
@@ -536,6 +543,8 @@ def model_board(
         bounds=bounds,
         referee=referee,
         spec_node_cap=spec_node_cap,
+        margin=margin,
+        margin_fn=margin_fn,
     )
     return case, tc, {"ir": ir, "leaves": leaves, "feed": feeds}
 
@@ -548,6 +557,8 @@ def mutant_board(
     bounds: ProbeBounds | None = None,
     referee: dict | None = None,
     spec_node_cap: int | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> tuple | None:
     """Build a gen-domain board for a generated ``TermCase``.
 
@@ -574,6 +585,8 @@ def mutant_board(
         bounds=bounds,
         referee=referee,
         spec_node_cap=spec_node_cap,
+        margin=margin,
+        margin_fn=margin_fn,
     )
 
 
@@ -682,6 +695,8 @@ def _model_corpus(
     max_claims: int | None = None,
     claim_time_budget: float | None = None,
     bounds: ProbeBounds | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> dict:
     """Run the per-model corpus pipeline; return the report.
 
@@ -708,6 +723,13 @@ def _model_corpus(
     without measurement.  On small terms all knobs default to the
     historical unbounded zoo behaviour.  Pass *bounds* directly for
     asymmetric caps (e.g. ``spec_tree_cap`` ≠ ``spec_op_cap``).
+
+    *margin*/*margin_fn* are the opt-in regime-margin overrides for
+    the measured-cost referee (``genkernel.profitable`` — e.g. a
+    ``genkernel.regime_margins`` table demanding a bigger site win
+    from the seq-scan regime): they apply to the model board AND
+    every mutant board, and ride ``ex["bounds"]`` into the board
+    gates so intake and offer pricing agree.
     """
     corpus = default_corpus() if corpus is None else list(corpus)
     # Phase 1 — export only, so the probe knobs resolve on the real
@@ -733,6 +755,8 @@ def _model_corpus(
         f"model:{name}",
         gen_reps=gen_reps,
         bounds=bounds,
+        margin=margin,
+        margin_fn=margin_fn,
     )
     cov = coverage_report(
         tc, corpus, shape_key_cap=bounds.shape_key_cap
@@ -777,6 +801,8 @@ def _model_corpus(
             label=f"gen:{name}:{i}",
             gen_reps=gen_reps,
             bounds=bounds,
+            margin=margin,
+            margin_fn=margin_fn,
         )
         if b is None:
             board_notes.append(
@@ -857,6 +883,8 @@ def model_corpus(
     max_claims: int | None = None,
     claim_time_budget: float | None = None,
     bounds: ProbeBounds | None = None,
+    margin: float | None = None,
+    margin_fn: Any = None,
 ) -> dict:
     """Run the per-model corpus pipeline; return the report.
 
@@ -885,6 +913,8 @@ def model_corpus(
             max_claims=max_claims,
             claim_time_budget=claim_time_budget,
             bounds=bounds,
+            margin=margin,
+            margin_fn=margin_fn,
         )
 
 

@@ -1115,6 +1115,167 @@ class TestMeasuredReferee:
         )
 
 
+class TestRegimeMargins:
+    """``profitable``'s opt-in per-regime margins (``margin_fn``).
+
+    The default referee keeps any claim whose kernel measures no
+    slower than its spelled site (``margin=1.0``).  ``margin_fn``
+    lets a caller demand a different bar per regime — e.g. the
+    seq-scan claims whose site-level parity does not compose to
+    module-level parity.
+    """
+
+    def _fixture(self, monkeypatch, ratio=(1.0, 0.7)):
+        """Two same-pattern handlers; every window times ``ratio``."""
+        torch = pytest.importorskip("torch")
+        x = _v("x", 16)
+        term = _p("add", _p("mul", x, _p("relu", x)), x)
+        hs = {
+            "gen_0": {
+                "pattern": ("mul", "X1", ("relu", "X1")),
+                "kernel": "gk_g",
+                "args": ("X1",),
+            },
+            # same site — the regime split is by handler NAME, not
+            # pattern, so both claims price the identical occurrence
+            "scan_0": {
+                "pattern": ("mul", "X1", ("relu", "X1")),
+                "kernel": "gk_s",
+                "args": ("X1",),
+            },
+        }
+        # ratio 0.7 sits OUTSIDE both the base margin's borderline
+        # band (0.8..1.25) and a tightened 0.5 band's (0.4..0.625),
+        # so every claim decides on its single first window — the
+        # ``_paired_time`` stub only matters for the margin=0.6 arm,
+        # whose band (0.48..0.75) DOES catch 0.7
+        monkeypatch.setattr(
+            gk, "_kernel_pays", lambda *a, **k: (*ratio, a[4])
+        )
+        monkeypatch.setattr(
+            gk, "_paired_time", lambda a, b, reps: ratio
+        )
+        return hs, term, {"x": torch.rand(16)}
+
+    def test_margin_fn_tightens_one_regime(self, monkeypatch):
+        """A per-name margin drops the tightened claim, keeps the rest."""
+        hs, term, env = self._fixture(monkeypatch)
+        seen = []
+
+        def margin_fn(name, h, vals, t_spelled):
+            seen.append((name, t_spelled))
+            return 0.5 if name == "scan_0" else None
+
+        keep = gk.profitable(hs, term, env, reps=2, margin_fn=margin_fn)
+        # scan_0 needs tk <= 0.5*ts; measured 0.7 -> dropped.
+        # gen_0 defers (None) to the base margin 1.0 -> kept.
+        assert sorted(keep) == ["gen_0"]
+        # the fn saw each handler's measured spelled time
+        assert {n for n, _ in seen} == {"gen_0", "scan_0"}
+        assert all(ts == 1.0 for _, ts in seen)
+
+    def test_margin_fn_none_defers_to_base_margin(self, monkeypatch):
+        """A ``None`` return falls back to the sweep's ``margin``."""
+        hs, term, env = self._fixture(monkeypatch)
+        keep = gk.profitable(
+            hs,
+            term,
+            env,
+            reps=2,
+            margin=0.6,
+            margin_fn=lambda *a: None,
+        )
+        # base margin 0.6 < measured 0.7 -> both regimes drop
+        assert keep == {}
+
+    def test_bounds_margin_and_margin_fn(self, monkeypatch):
+        """``ProbeBounds.margin``/``margin_fn`` supply referee defaults."""
+        from kit_discovery.bounds import ProbeBounds
+
+        hs, term, env = self._fixture(monkeypatch)
+        keep = gk.profitable(
+            hs,
+            term,
+            env,
+            reps=2,
+            bounds=ProbeBounds(margin=0.6),
+        )
+        assert keep == {}
+        keep = gk.profitable(
+            hs,
+            term,
+            env,
+            reps=2,
+            bounds=ProbeBounds(
+                margin_fn=gk.regime_margins({"scan": 0.5})
+            ),
+        )
+        assert sorted(keep) == ["gen_0"]
+        # an explicit kwarg beats the bounds default
+        keep = gk.profitable(
+            hs,
+            term,
+            env,
+            reps=2,
+            margin=1e9,
+            bounds=ProbeBounds(margin=0.6),
+        )
+        assert sorted(keep) == ["gen_0", "scan_0"]
+
+    def test_margin_fn_regime_table(self, monkeypatch):
+        """``regime_margins`` maps ``claim_regime`` keys to margins."""
+        hs, term, env = self._fixture(monkeypatch)
+        keep = gk.profitable(
+            hs,
+            term,
+            env,
+            reps=2,
+            margin_fn=gk.regime_margins(
+                {"scan": 0.5, "*": 0.9}, default=None
+            ),
+        )
+        # scan_0 -> "scan" regime -> 0.5 -> drop; gen_0 -> wildcard
+        # 0.9 -> 0.7 <= 0.9 keep
+        assert sorted(keep) == ["gen_0"]
+
+
+class TestClaimRegime:
+    """``claim_regime``/``regime_margins`` — the regime key surface."""
+
+    def test_name_prefix_regimes(self):
+        h = {"pattern": ("add", "X1", "X2")}
+        assert gk.claim_regime("gen_3", h) == "gen"
+        assert gk.claim_regime("decayed_1", h) == "decayed"
+        assert gk.claim_regime("red_2", h) == "red"
+        assert gk.claim_regime("scan_0", h) == "scan"
+        assert gk.claim_regime("prim:synop_ab", h) == "prim"
+        assert gk.claim_regime("claim_x", h) == "claim"
+        assert gk.claim_regime("foldabs_y", h) == "foldabs"
+        assert gk.claim_regime("mystery", h) == "other"
+
+    def test_scan_spec_regime(self):
+        """An ``applyd`` scan spec keys on its ``scan_spec`` kind."""
+        spec = ("applyd", ("aff_diag", "X1", "X2"), "X3")
+        info = gk.scan_spec(spec)
+        regime = gk.claim_regime("scan_0", {"pattern": spec})
+        if info is None:
+            # grammar drift — the name fallback still holds
+            assert regime == "scan"
+        else:
+            assert regime == f"scan:{info['kind']}"
+
+    def test_regime_margins_default_and_wildcard(self):
+        fn = gk.regime_margins({"gen": 0.5}, default=0.8)
+        h = {"pattern": ("add", "X1", "X2")}
+        assert fn("gen_0", h, {}, 1.0) == 0.5
+        assert fn("red_0", h, {}, 1.0) == 0.8
+        # default=None defers to the sweep's base margin
+        fn2 = gk.regime_margins({"gen": 0.5})
+        assert fn2("red_0", h, {}, 1.0) is None
+        fn3 = gk.regime_margins({"*": 0.25})
+        assert fn3("red_0", h, {}, 1.0) == 0.25
+
+
 class TestAttrSiteEnv:
     """Attr-metavar siting — the 5 prim specs ``_concrete_match`` misses."""
 

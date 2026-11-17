@@ -79,6 +79,8 @@ class TestProbeBounds:
             "max_handlers": 4,
             "time_budget": 1.5,
             "reps": 7,
+            "margin": None,
+            "margin_fn": False,
         }
         assert b.referee_dict() == {
             "max_handlers": 4,
@@ -89,6 +91,8 @@ class TestProbeBounds:
             "reps": 7,
             "max_handlers": 4,
             "time_budget": 1.5,
+            "margin": None,
+            "margin_fn": None,
         }
         # reps_default fills only when the bound leaves it open
         assert (
@@ -100,6 +104,16 @@ class TestProbeBounds:
         b = ProbeBounds()
         assert b.spec_tree_cap is None and b.spec_op_cap is None
         assert b.key_cap is None and b.max_handlers is None
+        assert b.margin is None and b.margin_fn is None
+
+    def test_margin_fields_echo(self):
+        """``margin``/``margin_fn`` are opt-in referee overrides."""
+        fn = lambda *a: None  # noqa: E731
+        b = ProbeBounds(margin=0.8, margin_fn=fn)
+        assert b.margin == 0.8 and b.margin_fn is fn
+        d = b.as_dict()
+        assert d["margin"] == 0.8 and d["margin_fn"] is True
+        assert b.profitable_kwargs(reps_default=20)["margin_fn"] is fn
 
 
 class TestSkipStats:
