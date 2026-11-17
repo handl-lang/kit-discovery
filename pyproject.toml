@@ -42,9 +42,20 @@ dev = [
 mlopt-core = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-core", tag = "v0.1.14" }
 mlopt-orchestrator = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-orchestrator", tag = "v0.1.14" }
 mlopt-dtypes = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-dtypes", tag = "v0.1.14" }
-gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.15" }
-discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.25" }
+gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.16" }
+discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.26" }
 kit-carriers = { git = "https://github.com/handl-lang/kit-carriers.git", tag = "v0.1.7" }
+
+
+# Transitional: kit-carriers v0.1.7 still transitively pins eqsat
+# v0.1.13; unify on v0.1.14 until carriers republishes. Remove once
+# kit-carriers ships an eqsat-v0.1.14 tag.
+[tool.uv]
+override-dependencies = [
+    "mlopt-core @ git+https://github.com/handl-lang/eqsat.git@v0.1.14#subdirectory=packages/mlopt-core",
+    "mlopt-orchestrator @ git+https://github.com/handl-lang/eqsat.git@v0.1.14#subdirectory=packages/mlopt-orchestrator",
+    "mlopt-dtypes @ git+https://github.com/handl-lang/eqsat.git@v0.1.14#subdirectory=packages/mlopt-dtypes",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
