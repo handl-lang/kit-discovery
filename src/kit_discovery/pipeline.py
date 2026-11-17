@@ -267,7 +267,14 @@ _VIEW_OPS = tuple(sorted(GENERATOR_VIEW_OPS))
 
 
 def _shape_aware() -> list[Proposal]:
-    """Return the shape-aware grammar's schemas as proposals."""
+    """Return the shape-aware grammar's schemas as proposals.
+
+    A schema's ``check`` side condition (``shape_proposal._SCHEMA_CHECKS``
+    — e.g. ``reshape_transpose``'s axis-alignment guard) passes through
+    to the proposal, so the oracles evaluate only the instances whose
+    shapes prove the commutation rather than counting every misaligned
+    spelling as a counterexample.
+    """
     return [
         Proposal(
             name=s.name,
@@ -275,6 +282,7 @@ def _shape_aware() -> list[Proposal]:
             rhs=s.rhs,
             family=s.family,
             sources=("shape-aware",),
+            check=s.check,
         )
         for s in schemas()
     ]

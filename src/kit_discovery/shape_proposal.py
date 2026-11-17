@@ -52,7 +52,9 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, replace
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +63,7 @@ from mlopt_core.egraph import EGraph, Rewrite
 from mlopt_core.egraph.terms import _term_instantiate, _term_match
 from mlopt_core.ir import Op
 from mlopt_core.laws import ALL_RULES
+from mlopt_core.typing import _shape_of
 
 # Sibling tools: the census/corpus, the verifier, and the numeric
 # oracle + saturation helpers the proposal retro already built.
@@ -108,17 +111,26 @@ _FIRE_NODES = 40_000
 
 @dataclass(frozen=True)
 class Schema:
-    """One generic equality ``lhs -> rhs`` over metavariable patterns."""
+    """One generic equality ``lhs -> rhs`` over metavariable patterns.
+
+    ``check`` is an optional side-condition hook over the resolved
+    binding — the ``Rewrite.check`` contract.  A guarded schema mints
+    only *conditionally*: every consumer (``_instance_from_match``,
+    ``sweep_real``, ``verify_view_candidate``, e-graph firing) applies
+    it, so a claim like ``reshape_transpose`` counts only the
+    instances whose shapes prove the commutation aligned.
+    """
 
     name: str
     lhs: Any
     rhs: Any
     note: str = ""
     family: str = ""
+    check: Any = None
 
     def as_rule(self) -> Rewrite:
         """Return the schema as a fireable ``Rewrite``."""
-        return Rewrite(self.name, self.lhs, self.rhs)
+        return Rewrite(self.name, self.lhs, self.rhs, check=self.check)
 
 
 def schemas() -> list[Schema]:
@@ -131,9 +143,17 @@ def schemas() -> list[Schema]:
     naturality, layout).  Some are deliberately library duplicates
     (the ``*_factor`` controls) so the tool's duplicate detector is
     exercised, and some target shapes the census found frequent
-    (``mul(select, select)``, ``add(mul, mul)``).
+    (``mul(select, select)``, ``add(mul, mul)``).  Schemas named in
+    :data:`_SCHEMA_CHECKS` additionally carry their side condition —
+    the minted claim is guarded, not refused outright, so the aligned
+    corner can still verify.
     """
-    return list(map(_schema, lawdata.SHAPE_SCHEMAS))
+    out: list[Schema] = []
+    for row in lawdata.SHAPE_SCHEMAS:
+        s = _schema(row)
+        check = _SCHEMA_CHECKS.get(s.name)
+        out.append(replace(s, check=check) if check is not None else s)
+    return out
 
 
 def _schema(row: tuple) -> Schema:
@@ -146,6 +166,212 @@ def _schema(row: tuple) -> Schema:
         note=note,
         family=family,
     )
+
+
+# ---------------------------------------------------------------------------
+#  Side conditions — schemas whose equality needs a shape-level guard
+# ---------------------------------------------------------------------------
+
+
+def _concrete_shape(term: Any) -> tuple[int, ...] | None:
+    """Return *term*'s inferred shape when fully concrete, else ``None``.
+
+    Every dim must be a positive ``int`` — a ``None``/symbolic dim or
+    a non-tuple answer means the guard cannot prove alignment, so it
+    declines rather than fabricate one.
+    """
+    s = _shape_of(term)
+    if not isinstance(s, tuple):
+        return None
+    if not all(
+        isinstance(d, int) and not isinstance(d, bool) and d > 0
+        for d in s
+    ):
+        return None
+    return s
+
+
+def _reshape_target(
+    spec: Any, sa: tuple[int, ...]
+) -> tuple[int, ...] | None:
+    """Resolve a bound ``shape`` attr to a concrete target tuple.
+
+    Accepts a tuple/list of positive ints with at most one ``-1``
+    (folded against *sa*'s numel, the torch convention) whose product
+    equals *sa*'s — a valid reshape target.  Anything else (``None``
+    dims, strings, multi-``-1``, numel mismatch) returns ``None``.
+    """
+    if isinstance(spec, bool):
+        return None
+    if isinstance(spec, int):
+        spec = (spec,)
+    if not isinstance(spec, (tuple, list)):
+        return None
+    dims: list[int] = []
+    wild: list[int] = []
+    for k, v in enumerate(spec):
+        if isinstance(v, bool) or not isinstance(v, int):
+            return None
+        if v == -1:
+            wild.append(k)
+        elif v <= 0:
+            return None
+        dims.append(v)
+    if len(wild) > 1:
+        return None
+    if wild:
+        known = math.prod(v for v in dims if v != -1)
+        n = math.prod(sa)
+        if known == 0 or n % known:
+            return None
+        dims[wild[0]] = n // known
+    if math.prod(dims) != math.prod(sa):
+        return None
+    return tuple(dims)
+
+
+def _strides(shape: tuple[int, ...]) -> tuple[int, ...]:
+    """Row-major strides of *shape*."""
+    w = [1] * len(shape)
+    for k in range(len(shape) - 2, -1, -1):
+        w[k] = w[k + 1] * shape[k + 1]
+    return tuple(w)
+
+
+def _perm_src(
+    p: int,
+    out_w: tuple[int, ...],
+    in_w: tuple[int, ...],
+    d: int,
+    i: int,
+) -> int:
+    """Source flat index for output flat *p* under an axis swap.
+
+    Decodes *p* under the *output* (swapped) shape's strides, swaps
+    coordinates *d*/*i*, and re-encodes under the *input* strides —
+    the flat permutation ``transpose`` induces on a tensor of the
+    input shape.
+    """
+    rank = len(in_w)
+    rem = p
+    coords = [0] * rank
+    for k in range(rank):
+        coords[k] = rem // out_w[k]
+        rem %= out_w[k]
+    coords[d], coords[i] = coords[i], coords[d]
+    src = 0
+    for k in range(rank):
+        src += coords[k] * in_w[k]
+    return src
+
+
+def _transpose_perm_data(
+    shape: tuple[int, ...], d: int, i: int
+) -> tuple[tuple[int, ...], tuple[int, ...], int, int]:
+    """Precomputed ``(in_w, out_w, d, i)`` for one transpose."""
+    r = len(shape)
+    d %= r
+    i %= r
+    out = list(shape)
+    out[d], out[i] = out[i], out[d]
+    return _strides(shape), _strides(tuple(out)), d, i
+
+
+#: Cap on the flat-index space a guard compares exhaustively — beyond
+#: it the check declines (a conservative refuse, never a guess).
+_PERM_CAP = 1 << 20
+
+
+@lru_cache(maxsize=4096)
+def _transpose_perms_equal(
+    s1: tuple[int, ...],
+    d1: int,
+    i1: int,
+    s2: tuple[int, ...],
+    d2: int,
+    i2: int,
+) -> bool:
+    """Return whether two axis swaps induce the same flat permutation.
+
+    ``transpose(·, d1, i1)`` on shape *s1* and ``transpose(·, d2, i2)``
+    on shape *s2* induce the SAME flat permutation of ``range(numel)``.
+
+    This is the exact axis-alignment criterion for
+    ``transpose(reshape(A, S)) = reshape(transpose(A))``: reshape
+    preserves flat order, so the claim holds iff the digit-swap the
+    outer transpose performs on the *reshaped* view equals the digit-
+    swap the inner transpose performs on ``A`` — checked pointwise
+    over every flat index (early exit on the first disagreement).
+    """
+    n1, n2 = math.prod(s1), math.prod(s2)
+    if n1 != n2:
+        return False
+    if n1 > _PERM_CAP:
+        return False
+    iw1, ow1, a1, b1 = _transpose_perm_data(s1, d1, i1)
+    iw2, ow2, a2, b2 = _transpose_perm_data(s2, d2, i2)
+    for p in range(n1):
+        if _perm_src(p, ow1, iw1, a1, b1) != _perm_src(
+            p, ow2, iw2, a2, b2
+        ):
+            return False
+    return True
+
+
+def _check_reshape_transpose(bound: dict) -> bool:
+    """Guard ``transpose(reshape(A, S), D, I) = reshape(transpose(A, D, I), S)``.
+
+    Bare axis metavariables make the schema's commutation *conditional*:
+    the reshape's split/merge must leave the transposed axes aligned.
+    The guard decides that per binding — both shapes must be concrete,
+    the reshape target must resolve, each transpose's axes must be
+    valid on its own tensor, the LHS transpose must preserve the
+    output shape (``st[d] == st[i]``), and the two induced flat
+    permutations must agree on every index.  Anything unresolvable —
+    unknown leaf shapes, ``None`` dims, tensors past the comparison
+    cap — declines: the claim mints only where alignment is proven.
+    """
+    sa = _concrete_shape(bound.get("A"))
+    st = (
+        _reshape_target(bound.get("$attr:S"), sa)
+        if sa is not None
+        else None
+    )
+    d, i = bound.get("$attr:D"), bound.get("$attr:I")
+    if (
+        sa is None
+        or st is None
+        or not sa
+        or not st
+        or isinstance(d, bool)
+        or isinstance(i, bool)
+        or not isinstance(d, int)
+        or not isinstance(i, int)
+    ):
+        return False
+    rt, rs = len(st), len(sa)
+    if not (-rt <= d < rt and -rt <= i < rt):
+        return False
+    if not (-rs <= d < rs and -rs <= i < rs):
+        return False
+    dl, il = d % rt, i % rt
+    dr, ir = d % rs, i % rs
+    # The LHS output shape is ``swap(st, dl, il)``; the RHS output
+    # shape is ``st`` — unequal extents make the instance ill-formed.
+    if dl != il and st[dl] != st[il]:
+        return False
+    return _transpose_perms_equal(st, dl, il, sa, dr, ir)
+
+
+#: Schema name → procedural ``check`` hook (the ``Rewrite.check``
+#: contract over the resolved ``{metavar: term, "$attr:NAME": value}``
+#: binding).  Attached by :func:`schemas` so the minted proposal —
+#: and every oracle/gauntlet path that consumes it — honours the
+#: side condition instead of evaluating misaligned instances as
+#: counterexamples.
+_SCHEMA_CHECKS: dict[str, Any] = {
+    "reshape_transpose": _check_reshape_transpose,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -256,10 +482,23 @@ class SchemaOutcome:
 
 
 def _instantiate(schema: Schema, sub: Any) -> Any | None:
-    """Return the RHS instance of *schema* on the matched subterm *sub*."""
+    """Return the RHS instance of *schema* on the matched subterm *sub*.
+
+    The schema's ``check`` side condition (when present) vetoes the
+    match exactly as a firing would — the numeric oracle sees only
+    instances whose shapes prove the claim, never a misaligned
+    spelling counted as a counterexample.
+    """
+    rule = schema.as_rule()
     subst = _term_match(schema.lhs, sub)
     if subst is None:
         return None
+    if rule.check is not None:
+        try:
+            if not rule.check(subst):
+                return None
+        except Exception:
+            return None
     return _term_instantiate(schema.rhs, subst)
 
 
@@ -353,11 +592,21 @@ def run_proposal() -> dict:
             from mlopt_core.ir import op_repr
 
             out.example = op_repr(matches[0])
-            rhs = _instantiate(schema, matches[0])
-            if rhs is not None:
-                out.num_true = _numeric_true(matches[0], rhs)
+            # First match whose binding survives the schema's guard —
+            # a guarded schema's truth is measured on the aligned
+            # corner, not on a vetoed misaligned spelling.
+            inst = next(
+                (
+                    (m, rhs)
+                    for m in matches
+                    if (rhs := _instantiate(schema, m)) is not None
+                ),
+                None,
+            )
+            if inst is not None:
+                out.num_true = _numeric_true(inst[0], inst[1])
                 out.derivable = verify_law(
-                    matches[0], rhs, ALL_RULES
+                    inst[0], inst[1], ALL_RULES
                 ).derivable
             out.base_cost, out.cand_cost = _cost_delta(
                 schema, matches, cost_fn

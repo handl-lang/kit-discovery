@@ -622,6 +622,68 @@ def test_schemas_library_and_as_rule():
         r = s.as_rule()
         assert isinstance(r, Rewrite) and r.name == s.name
 
+def test_reshape_transpose_schema_carries_axis_guard():
+    """The layout commutation mints guarded, not bare.
+
+    ``transpose(reshape(A, S), D, I) = reshape(transpose(A, D, I), S)``
+    is only true when the reshape's split/merge leaves the transposed
+    axes aligned — the schema carries a ``check`` that proves the two
+    induced flat permutations agree, so misaligned bindings are
+    refused instead of counted as counterexamples (agenda item 12:
+    the oracle correctly rejected every unguarded claim).
+    """
+    sch = _sch()
+    s = sch["reshape_transpose"]
+    assert s.check is not None
+    assert s.family == "layout"
+
+    def bound(a_shape, target, d, i):
+        return {
+            "A": _v("a", *a_shape),
+            "$attr:S": target,
+            "$attr:D": d,
+            "$attr:I": i,
+        }
+
+    # Misaligned: reshape merges axes 1,2 of (2,3,4) into 12 — the
+    # transpose of axes 0,1 crosses the merge boundary.
+    assert (
+        s.check(bound((2, 3, 4), (2, 12), 0, 1)) is False
+    )
+    # Aligned: reshape only splits the untouched last axis — the
+    # transpose of axes 0,1 commutes.
+    assert (
+        s.check(bound((2, 2, 6), (2, 2, 2, 3), 0, 1)) is True
+    )
+    # Aligned degenerate: identity reshape, equal-extent swap.
+    assert s.check(bound((2, 2, 3), (2, 2, 3), 0, 1)) is True
+    # Refused: swapped extents would change the output shape.
+    assert (
+        s.check(bound((2, 3, 4), (2, 3, 4), 0, 2)) is False
+    )
+    # Refused: unresolvable inputs (numel mismatch, unknown dims).
+    assert (
+        s.check(bound((2, 3), (2, 2), 0, 1)) is False
+    )
+    assert (
+        s.check(
+            {
+                "A": Var("a", TensorType((None, 4))),
+                "$attr:S": (2, 2),
+                "$attr:D": 0,
+                "$attr:I": 1,
+            }
+        )
+        is False
+    )
+    # The minted proposal carries the guard end-to-end.
+    from kit_discovery import pipeline as pl
+
+    prop = {p.name: p for p in pl._shape_aware()}["reshape_transpose"]
+    assert prop.check is s.check
+    assert prop.as_rule().check is not None
+
+
 def test_relax_renames_only_repeated_metavars():
     fl = _sch()["factor_left"]
     relaxed = sp._relax(fl.lhs)
