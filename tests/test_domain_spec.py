@@ -79,11 +79,16 @@ class TestEligibility:
         assert "law_mm" not in kinds
         assert "view_gap" not in kinds
         assert "scan" not in kinds
-        assert {
-            "law_silu",
-            "ew_gap" if "ew_gap" in kinds else "mixed_gap",
-        } & set(kinds)
-        assert "silu" in kinds and "mixed_gap" in kinds
+        # ``silu``'s spelled-silu footprint stays inside the ops
+        # whitelist; ``mixed_gap`` spells ``_EW_GAP_OPS`` — its
+        # sampled footprint drew ``mish`` (outside vocab.ops), so
+        # the kind correctly drops (the corpus_cov ``law_synop``
+        # builder added in discoverykit v0.1.30 re-rolled the
+        # seed-0 footprint sample).  ``law_silu``'s spelled-silu
+        # form stays in.
+        assert "silu" in kinds and "law_silu" in kinds
+        assert "mixed_gap" not in kinds
+        assert "ew_gap" not in kinds
 
     def test_kinds_intersection(self):
         spec = _spec(corpus={"kinds": ["silu", "control"]})
@@ -856,10 +861,22 @@ class TestAttrValues:
         assert ds._attr_values_ok(spelled, spec.attr_values)
 
     def test_eligibility_drops_violating_kinds(self):
-        spec = self._av()
+        # ``dim: []`` — an empty allowed set: *every* ``unsqueeze``
+        # site violates, so ``law_unsq`` (whose builder always spells
+        # ``unsqueeze``) drops deterministically.  The original
+        # ``dim: [0, 1]`` spelling made the drop draw-luck — the
+        # dim-2 roll had to land inside the seed-0 footprint sample —
+        # and the corpus_cov ``law_synop`` builder (discoverykit
+        # v0.1.30) re-rolled that sample clean.
+        spec = ds.load_spec(
+            {
+                "name": "t-av-drop",
+                "vocab": {"attr_values": {"unsqueeze": {"dim": []}}},
+            }
+        )
         kinds = ds._eligible_kinds(spec)
-        # the dim-2 view kind's footprint sample shows violations
         assert "law_unsq" not in kinds
+        assert "silu" in kinds  # positive control — clean kinds draw
         assert kinds  # honest: other kinds still draw
 
     def test_cases_invariant(self):
