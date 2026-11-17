@@ -117,7 +117,7 @@ class TestCoverageGaps:
         rep = cc.coverage_gaps([])
         vocab = cc.vocabulary()
         assert rep["n_cases"] == 0
-        assert rep["ops"]["n_missing"] == len(vocab["ops"])
+        assert rep["ops"]["n_missing"] + rep["ops"]["n_derived"] == len(vocab["ops"])
         assert rep["attrs"]["n_missing"] == len(vocab["attrs"])
         assert rep["handlers"]["missing"] == [
             "silu",
@@ -125,7 +125,12 @@ class TestCoverageGaps:
             "swiglu",
         ]
         assert rep["rules"]["armed"] == []
-        assert len(rep["rules"]["unarmed"]) == 156
+        assert len(rep["rules"]["unarmed"]) == 120
+        assert len(rep["rules"]["derived_unreachable"]) == 36
+        assert (
+            len(rep["rules"]["unarmed"]) + len(rep["rules"]["derived_unreachable"])
+            == rep["rules"]["n_vocab"]
+        )
 
     def test_spelled_silu_arms_fold_and_handler(self):
         site = Op.make("mul", _X, Op.make("sigmoid", _X))
