@@ -5948,10 +5948,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "M"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "M"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -6098,10 +6131,43 @@
               ]
             ],
             [
-              "axis",
-              "Q",
-              "SD",
-              -1
+              "and",
+              [
+                "shaped",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ]
+              ],
+              [
+                "shaped",
+                "MK"
+              ],
+              [
+                "axis",
+                [
+                  "bcast",
+                  [
+                    "mm-out",
+                    "Q",
+                    [
+                      "transpose-out",
+                      "K",
+                      "TD1",
+                      "TD2"
+                    ]
+                  ],
+                  "MK"
+                ],
+                "SD",
+                -1
+              ]
             ]
           ],
           [
@@ -6253,10 +6319,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "M"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "M"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -6412,10 +6511,43 @@
               ]
             ],
             [
-              "axis",
-              "Q",
-              "SD",
-              -1
+              "and",
+              [
+                "shaped",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ]
+              ],
+              [
+                "shaped",
+                "MK"
+              ],
+              [
+                "axis",
+                [
+                  "bcast",
+                  [
+                    "mm-out",
+                    "Q",
+                    [
+                      "transpose-out",
+                      "K",
+                      "TD1",
+                      "TD2"
+                    ]
+                  ],
+                  "MK"
+                ],
+                "SD",
+                -1
+              ]
             ]
           ],
           [
@@ -6558,10 +6690,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "M"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "M"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -6711,10 +6876,43 @@
               ]
             ],
             [
-              "axis",
-              "Q",
-              "SD",
-              -1
+              "and",
+              [
+                "shaped",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ]
+              ],
+              [
+                "shaped",
+                "MK"
+              ],
+              [
+                "axis",
+                [
+                  "bcast",
+                  [
+                    "mm-out",
+                    "Q",
+                    [
+                      "transpose-out",
+                      "K",
+                      "TD1",
+                      "TD2"
+                    ]
+                  ],
+                  "MK"
+                ],
+                "SD",
+                -1
+              ]
             ]
           ],
           [
@@ -6869,10 +7067,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "M"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "M"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -7031,10 +7262,43 @@
               ]
             ],
             [
-              "axis",
-              "Q",
-              "SD",
-              -1
+              "and",
+              [
+                "shaped",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ]
+              ],
+              [
+                "shaped",
+                "MK"
+              ],
+              [
+                "axis",
+                [
+                  "bcast",
+                  [
+                    "mm-out",
+                    "Q",
+                    [
+                      "transpose-out",
+                      "K",
+                      "TD1",
+                      "TD2"
+                    ]
+                  ],
+                  "MK"
+                ],
+                "SD",
+                -1
+              ]
             ]
           ],
           [
@@ -7169,10 +7433,43 @@
           ]
         ],
         [
-          "axis",
-          "Q",
-          "SD",
-          -1
+          "and",
+          [
+            "shaped",
+            [
+              "mm-out",
+              "Q",
+              [
+                "transpose-out",
+                "K",
+                "TD1",
+                "TD2"
+              ]
+            ]
+          ],
+          [
+            "shaped",
+            "M"
+          ],
+          [
+            "axis",
+            [
+              "bcast",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ],
+              "M"
+            ],
+            "SD",
+            -1
+          ]
         ]
       ],
       "dspec": {
@@ -7297,10 +7594,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "MK"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "MK"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -7430,10 +7760,43 @@
           ]
         ],
         [
-          "axis",
-          "Q",
-          "SD",
-          -1
+          "and",
+          [
+            "shaped",
+            [
+              "mm-out",
+              "Q",
+              [
+                "transpose-out",
+                "K",
+                "TD1",
+                "TD2"
+              ]
+            ]
+          ],
+          [
+            "shaped",
+            "M"
+          ],
+          [
+            "axis",
+            [
+              "bcast",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ],
+              "M"
+            ],
+            "SD",
+            -1
+          ]
         ]
       ],
       "dspec": {
@@ -7567,10 +7930,43 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "shaped",
+              "MK"
+            ],
+            [
+              "axis",
+              [
+                "bcast",
+                [
+                  "mm-out",
+                  "Q",
+                  [
+                    "transpose-out",
+                    "K",
+                    "TD1",
+                    "TD2"
+                  ]
+                ],
+                "MK"
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -7681,10 +8077,35 @@
             ]
           ],
           [
-            "axis",
-            "Q",
-            "SD",
-            -1
+            "and",
+            [
+              "shaped",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ]
+            ],
+            [
+              "axis",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ],
+              "SD",
+              -1
+            ]
           ]
         ],
         [
@@ -7792,39 +8213,61 @@
           [
             "and",
             [
-              "and",
+              "concrete",
+              "K"
+            ],
+            [
+              "attr-type",
+              "TD1",
+              "int"
+            ],
+            [
+              "attr-type",
+              "TD2",
+              "int"
+            ],
+            [
+              "axes-last2",
+              "K",
+              "TD1",
+              "TD2"
+            ]
+          ],
+          [
+            "and",
+            [
+              "shaped",
               [
-                "concrete",
-                "K"
-              ],
-              [
-                "attr-type",
-                "TD1",
-                "int"
-              ],
-              [
-                "attr-type",
-                "TD2",
-                "int"
-              ],
-              [
-                "axes-last2",
-                "K",
-                "TD1",
-                "TD2"
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
               ]
             ],
             [
               "axis",
-              "Q",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ],
               "SD",
               -1
             ]
-          ],
-          [
-            "const-num",
-            "S"
           ]
+        ],
+        [
+          "const-num",
+          "S"
         ],
         [
           "and",
@@ -7940,39 +8383,61 @@
           [
             "and",
             [
-              "and",
+              "concrete",
+              "K"
+            ],
+            [
+              "attr-type",
+              "TD1",
+              "int"
+            ],
+            [
+              "attr-type",
+              "TD2",
+              "int"
+            ],
+            [
+              "axes-last2",
+              "K",
+              "TD1",
+              "TD2"
+            ]
+          ],
+          [
+            "and",
+            [
+              "shaped",
               [
-                "concrete",
-                "K"
-              ],
-              [
-                "attr-type",
-                "TD1",
-                "int"
-              ],
-              [
-                "attr-type",
-                "TD2",
-                "int"
-              ],
-              [
-                "axes-last2",
-                "K",
-                "TD1",
-                "TD2"
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
               ]
             ],
             [
               "axis",
-              "Q",
+              [
+                "mm-out",
+                "Q",
+                [
+                  "transpose-out",
+                  "K",
+                  "TD1",
+                  "TD2"
+                ]
+              ],
               "SD",
               -1
             ]
-          ],
-          [
-            "const-num",
-            "S"
           ]
+        ],
+        [
+          "const-num",
+          "S"
         ],
         [
           "and",
