@@ -2,12 +2,6 @@
 
 The law-discovery engine for the mlopt game — census, proposal,
 oracles, evidence store, intake and the `play` domain registry.
-Split out of `handl-lang/graphopt` (`packages/mlopt-discovery`) in
-P3 Step D-1d and renamed `mlopt-discovery` → `kit-discovery` /
-`mlopt_discovery` → `kit_discovery` (the package descends from
-`tools/law_*.py`; the domain-free mining core was extracted earlier
-to `handl-lang/discoverykit`, whose stay-side shims this package
-still owns).
 
 `kit_discovery` is the **top of the torch stack**: it reads
 `mlopt_core`/`mlopt_orchestrator` (handl-lang/eqsat),
@@ -27,7 +21,7 @@ mlopt product consumes), `play/` (the `DOMAINS` registry +
 `python -m kit_discovery.play` CLI), and the `mlopt_discovery.*`
 compat shims that swap `sys.modules` onto `gamekit`/`discoverykit`.
 
-## Install
+## Develop
 
 ```sh
 uv sync --group dev
@@ -47,8 +41,12 @@ repos — see `[tool.uv.sources]`; `kit-torch` resolves from
 ## Verify
 
 ```sh
-.venv/bin/python -m pytest tests/ -q
-.venv/bin/ruff check src
-.venv/bin/ty check
-.venv/bin/lint-imports
+uv run scripts/gate.py --coverage   # pytest → ruff → ty → lint-imports → coverage floor
 ```
+
+`scripts/gate.py` is a stdlib runner over the dev toolchain; `ci.sh`
+is the gate entry.
+
+## License
+
+MIT.
