@@ -1,11 +1,11 @@
-# bupha.toml — committed CI manifest for handl-lang/kit-discovery.
+# bupha.toml — committed CI manifest for handl-lang/mlopt-discovery.
 #
 # Runner is this repo's ci.sh. Merge the [[repos]] entry into the shared
 # watcher (~/.config/bupha/bupha.toml) or run: bupha watch --config bupha.toml
 
 [[repos]]
-name = "handl-lang/kit-discovery"
-dir = "~/GitHub/handl-lang/kit-discovery"
+name = "handl-lang/mlopt-discovery"
+dir = "~/GitHub/handl-lang/mlopt-discovery"
 branch = "refs/heads/main"
   [repos.runner]
   kind = "script"
