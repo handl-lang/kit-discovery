@@ -7,8 +7,12 @@ Steps run only when their tool/config exists:
   pytest → ruff check → ruff format --check → ty check → lint-imports.
 `--coverage` adds `coverage run -m pytest` + `coverage report -m` instead of
 the plain pytest step (for repos with a `[tool.coverage.report] fail_under`).
+
+MLOPT_GATES_LANE=dev (default) runs pytest with `-m "not slow"` — the
+per-push lane; `full` runs the whole suite (hours-scale `slow` tail).
 """
 
+import os
 import shutil
 import subprocess
 import sys
@@ -39,11 +43,34 @@ def main() -> int:
     if (ROOT / "tests").is_dir():
         pytest = tool("pytest") or tool("python")
         if pytest:
+            # MLOPT_GATES_LANE mirrors workflows/gate.yaml: dev (default)
+            # deselects the hours-scale `slow` tail; full runs it too.
+            lane = os.environ.get("MLOPT_GATES_LANE", "dev")
+            if lane not in ("dev", "full"):
+                print(
+                    f"gate.py: unknown MLOPT_GATES_LANE={lane} (dev|full)",
+                    file=sys.stderr,
+                )
+                return 2
+            marker = ["-m", "not slow"] if lane == "dev" else []
             if coverage and tool("coverage"):
-                steps.append(("coverage", [tool("coverage"), "run", "-m", "pytest", "tests/", "-q"]))
+                steps.append(
+                    (
+                        "coverage",
+                        [
+                            tool("coverage"),
+                            "run",
+                            "-m",
+                            "pytest",
+                            "tests/",
+                            "-q",
+                            *marker,
+                        ],
+                    )
+                )
                 steps.append(("coverage-report", [tool("coverage"), "report", "-m"]))
             else:
-                steps.append(("pytest", [pytest, "-m", "pytest", "tests/", "-q"]))
+                steps.append(("pytest", [pytest, "-m", "pytest", "tests/", "-q", *marker]))
 
     ruff = tool("ruff")
     if ruff:

@@ -92,14 +92,23 @@ stay-side shims this package still owns.  Python 3.13, torch +
 
 ```sh
 uv sync --group dev
-.venv/bin/python -m pytest tests/ -q
+.venv/bin/python -m pytest tests/ -q -m "not slow"   # the gate lane (~45–75 min)
+.venv/bin/python -m pytest tests/ -q                 # full suite — hours-scale
 .venv/bin/ruff check src
 .venv/bin/ruff format --check src
 .venv/bin/ty check
 .venv/bin/lint-imports
-coverage run -m pytest tests/ -q && coverage report -m   # floor in pyproject
+coverage run -m pytest tests/ -q -m "not slow" && coverage report -m   # floor in pyproject
 ```
 
+- The `slow` marker covers the hours-scale tail — the open-game
+  `measured` fixtures (policy training + hundreds of episodes) and
+  the large-budget e-graph saturations.  The per-push gate
+  (`workflows/gate.yaml`, `MLOPT_GATES_LANE=dev` default) deselects
+  them via `-m "not slow"`; `MLOPT_GATES_LANE=full` or
+  `GATE_PYTEST_ARGS` runs everything locally.  The coverage floor
+  was measured on the `not slow` lane, so the gate lane still meets
+  it — run the full suite before committing slow-lane changes.
 - Coverage floor is `fail_under` in `[tool.coverage.report]`,
   measured on the package-bound suite — the cross-stack exercise
   still runs through graphopt's suite via the git dep.  Tighten,
