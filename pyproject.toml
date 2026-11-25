@@ -26,7 +26,7 @@ dev = [
     # single pin fits all consumers, so this repo's own dev env binds it
     # here as a direct git dep instead of a [tool.uv.sources] entry
     # (the kit-carriers dep-source lesson).
-    "kit-torch @ git+https://github.com/handl-lang/mlopt-torch.git@v0.1.8",
+    "kit-torch @ git+https://github.com/handl-lang/kit-torch.git@v0.1.8",
     "pytest>=7.0",
     "ruff>=0.6",
     "coverage>=7.0",
@@ -45,7 +45,7 @@ mlopt-orchestrator = { git = "https://github.com/handl-lang/eqsat.git", subdirec
 mlopt-dtypes = { git = "https://github.com/handl-lang/eqsat.git", subdirectory = "packages/mlopt-dtypes", tag = "v0.1.14" }
 gamekit = { git = "https://github.com/handl-lang/gamekit.git", subdirectory = "packages/gamekit", tag = "v0.1.16" }
 discoverykit = { git = "https://github.com/handl-lang/discoverykit.git", subdirectory = "packages/discoverykit", tag = "v0.1.31" }
-kit-carriers = { git = "https://github.com/handl-lang/mlopt-carriers.git", tag = "v0.1.8" }
+kit-carriers = { git = "https://github.com/handl-lang/kit-carriers.git", tag = "v0.1.8" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

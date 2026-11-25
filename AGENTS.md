@@ -70,10 +70,10 @@ stay-side shims this package still owns.  Python 3.13, torch +
   real modules.
 - Substrate deps: `mlopt-core`, `mlopt-orchestrator`,
   `mlopt-dtypes` (handl-lang/eqsat, `packages/` subdirs,
-  tag-pinned); `kit-torch` (handl-lang/graphopt,
-  `packages/kit-torch` subdir — resolved by the *consumer's*
-  `[tool.uv.sources]`; this repo's dev env binds it via a
-  dev-group direct-URL, the kit-carriers dep-source lesson);
+  tag-pinned); `kit-torch` (handl-lang/kit-torch, tag-pinned —
+  resolved by the *consumer's* `[tool.uv.sources]`; this repo's
+  dev env binds it via a dev-group direct-URL, the kit-carriers
+  dep-source lesson);
   `kit-carriers` (handl-lang/kit-carriers, tag-pinned);
   `gamekit`/`discoverykit` (their repos, `packages/` subdirs,
   tag-pinned).  `discoverykit` lazily imports `kit_discovery.*`
