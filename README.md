@@ -44,7 +44,7 @@ repos — see `[tool.uv.sources]`; `kit-torch` resolves from
 uv run scripts/gate.py --coverage   # pytest → ruff → ty → lint-imports → coverage floor
 ```
 
-`scripts/gate.py` is a stdlib runner over the dev toolchain; `ci.sh`
+`scripts/gate.py` is a stdlib runner over the dev toolchain; `workflows/gate.yaml`
 is the gate entry.
 
 ## License
