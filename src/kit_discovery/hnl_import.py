@@ -13,7 +13,10 @@ bridge that lets handl-native models enter mlopt search.  This is a
   before parsing; anything else is a syntax error, not a guess;
 * every ``tensor.<op>`` call must name an op in :data:`_HANDLERS` —
   the covered set is exactly the mlopt IR ops whose ``tensor.*``
-  spelling is pinned by ``kit_host_tensor.bindings.HOST_BINDINGS``
+  spelling is pinned by the vendored ``HOST_BINDINGS`` key set
+  (``mlopt.tensor_surface.host_binding_ops`` — formerly
+  ``kit_host_tensor.bindings.HOST_BINDINGS``, retired with the
+  kit-host-tensor repo)
   (plus ``batch_norm``/``max_pool2d``/``pack``, which the host surface
   carries but the executor table does not).  Anything else —
   ``tensor.from_list`` in term position, ``tensor.chunk``'s Array
@@ -614,8 +617,9 @@ def _h_var_std(op: str):
     """``tensor.var/std(t, dim?, unbiased?, keepdim?)``.
 
     The host port's third slot is the *unbiased* bool — the generated
-    decoder has no ``correction`` slot (``kit_host_tensor.bindings``
-    documents ``correction ∈ {0,1}`` mapping onto it): ``true`` →
+    decoder has no ``correction`` slot (the retired
+    ``kit_host_tensor.bindings`` documented ``correction ∈ {0,1}``
+    mapping onto it): ``true`` →
     ``correction=1``, ``false`` → ``correction=0``.
     """
 
@@ -1049,7 +1053,7 @@ def _h_t(imp: _Importer, args: list[Any]) -> Any:
 # ---------------------------------------------------------------------------
 
 #: Attr-free unary ops — ``tensor.op(t)`` → ``Op(op, t)``.  The set is
-#: ``kit_host_tensor.bindings``' ``_u1`` builders (the IR ops whose
+#: the retired ``kit_host_tensor.bindings``' ``_u1`` builders (the IR ops whose
 #: host port takes exactly one tensor and no attrs); ``numel``/``item``
 #: return scalars but are still one-operand IR ops.
 _UNARY_OPS = frozenset(
@@ -1109,7 +1113,7 @@ _UNARY_OPS = frozenset(
 )
 
 #: Attr-free binary ops — ``tensor.op(a, b)`` → ``Op(op, a, b)``.
-#: ``kit_host_tensor.bindings``' ``_u2``/``_bin_scalar_rhs`` set plus
+#: the retired ``kit_host_tensor.bindings``' ``_u2``/``_bin_scalar_rhs`` set plus
 #: the elementwise max/min family (``maximum``/``minimum`` — ``max``/
 #: ``min`` themselves are reductions and decline, see below).
 _BINARY_OPS = frozenset(
