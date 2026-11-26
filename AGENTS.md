@@ -59,7 +59,7 @@ stay-side shims this package still owns.  Python 3.13, torch +
   (`kit_torch`, `mlopt_orchestrator`, `mlopt_core`,
   `kit_carriers`, `gamekit`, `discoverykit`) and nothing may depend
   back on it; the import-linter `forbidden` contract enforces the
-  upward edges (`kit_host_tensor`/`mlopt_host_tensor`, `kit_onnx`, `benchkit`,
+  upward edges (`kit_onnx`, `benchkit`,
   `mlopt_native`, the `mlopt` product).  `kit_cuda` is a lazy
   optional bind (`ImportError` → honest decline in `play/gen.py` /
   `play/torch_arm.py`) — deliberately undeclared.
